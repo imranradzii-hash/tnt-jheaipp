@@ -40,6 +40,21 @@ function isiSalinan(ss, peta) {
     });
   });
 
+  (peta.gaya || []).forEach(function (g) {
+    var sh = ss.getSheetByName(g[0]);
+    if (!sh) return;
+    var r = sh.getRange(g[1]), f = g[2];
+    if (f.warna) r.setFontColor(f.warna);
+    if (f.saiz) r.setFontSize(f.saiz);
+    if (f.mendatar) r.setHorizontalAlignment(f.mendatar);
+    if (f.menegak) r.setVerticalAlignment(f.menegak);
+    if (f.balut) r.setWrap(true);
+  });
+  (peta.tinggiLain || []).forEach(function (t) {
+    var sh = ss.getSheetByName(t[0]);
+    if (sh) sh.setRowHeight(t[1], t[2]);
+  });
+
   // Buang lajur/baris kosong di luar borang supaya export tidak mengecilkan halaman
   Object.keys(peta.julat).forEach(function (nama) {
     var sh = ss.getSheetByName(nama), j = peta.julat[nama];

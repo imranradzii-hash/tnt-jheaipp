@@ -68,9 +68,12 @@ function a1(a) {
 }
 MockSheet.prototype.getRange = function (r, c, nr, nc) {
   if (typeof r === 'string') {
-    const [rr, cc] = a1(r);
+    const [rr, cc] = a1(r.split(':')[0]);
     const rg = new MockRange(this, rr, cc, 1, 1);
     rg.setValue = (v) => { this.nilai = this.nilai || {}; this.nilai[r] = v; this.set(rr, cc, v); return rg; };
+    const catat = (k) => (v) => { ((this.gaya = this.gaya || {})[r] = this.gaya[r] || {})[k] = v; return rg; };
+    rg.setFontColor = catat('warna'); rg.setFontSize = catat('saiz'); rg.setHorizontalAlignment = catat('mendatar');
+    rg.setVerticalAlignment = catat('menegak'); rg.setWrap = catat('balut');
     return rg;
   }
   if (r + (nr || 1) - 1 > this.maxRows || c + (nc || 1) - 1 > this.maxCols) throw new Error('Range out of bounds');

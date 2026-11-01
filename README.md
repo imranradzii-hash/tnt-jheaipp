@@ -65,26 +65,26 @@ Alamat pejabat dalam templat (PDT Seberang Perai Tengah) diganti dengan `ALAMAT_
 6. Pilih `ujiCetak` → **Run** → buka PDF ujian dalam My Drive dan semak susun atur.
 7. **Deploy → New deployment → Web app**: *Execute as: Me*, *Who has access: Anyone with Google account*
    (atau *Anyone within penang.gov.my* untuk lapisan keselamatan tambahan jika semua staf ada akaun Workspace).
-   Jika paparan dihos di Netlify, pilih *Anyone* (lihat bahagian Netlify di bawah).
+   Jika paparan dihos di Vercel, pilih *Anyone* (lihat bahagian Vercel di bawah).
 8. Buka URL web app → **Daftar akaun** dengan emel admin anda.
 9. Admin > **Tetapan**: semak `ALAMAT_PEJABAT` (lalai: alamat JHEAIPP Lebuh Pantai). Admin > **Kumpulan gred** dan **Kadar**: isi elaun makan, harian
    dan lojing ikut pekeliling semasa. Kadar mileage sudah diisi (lihat jadual di atas).
 
-### Pilihan: paparan di Netlify (auto-kemaskini dari GitHub)
+### Paparan di Vercel (auto-kemaskini dari GitHub)
 
-Paparan (HTML) boleh dihos di Netlify; database dan logik kekal di Apps Script + Google Sheet.
+Paparan (HTML) dihos di Vercel; database dan logik kekal di Apps Script + Google Sheet.
 
 1. Apps Script: **Deploy → New deployment → Web app**, *Execute as: Me*, *Who has access: **Anyone***.
-   Salin URL yang berakhir `/exec`. (Akses "Anyone" diperlukan kerana Netlify memanggil tanpa login Google;
-   keselamatan bergantung pada login sistem: token sesi disemak setiap panggilan, hanya fungsi `api*` dalam
-   `Web.js` boleh dipanggil.)
-2. Netlify: **Add new site → Import an existing project → GitHub** → pilih repo ini dan branch yang mengandungi kod.
-   Tetapan bina dibaca daripada `netlify.toml` (bina `node tools/bina.js`, terbit folder `web`).
-3. Netlify: **Site configuration → Environment variables** → tambah `APPS_SCRIPT_URL` = URL langkah 1 → **Deploy**.
+   URL `/exec` disimpan dalam `config/apps-script-url.txt` (bukan rahsia; ia kelihatan dalam kod halaman).
+   Keselamatan bergantung pada login sistem: token sesi disemak setiap panggilan, hanya fungsi `api*`
+   dalam `Web.js` boleh dipanggil.
+2. Vercel: **Add New → Project → Import** repo ini. Tetapan bina dibaca daripada `vercel.json`
+   (bina `node tools/bina.js`, output `web`, header keselamatan). Tiada environment variable diperlukan;
+   jika mahu, `APPS_SCRIPT_URL` dalam Vercel mengatasi fail config.
+3. Setiap push ke branch production mengemaskini paparan secara automatik.
 
-Setiap push ke GitHub mengemaskini paparan secara automatik. Perubahan backend (`dist/Kod.gs`) masih perlu ditampal
-di Apps Script dan **Manage deployments → ✏️ → New version** (URL `/exec` kekal sama, jadi Netlify tak perlu diubah).
-`netlify.toml` juga menetapkan Content-Security-Policy dan header keselamatan lain.
+Perubahan backend (`dist/Kod.gs`) masih perlu ditampal di Apps Script dan **Manage deployments → ✏️ →
+New version** (URL `/exec` kekal sama). Jika URL berubah, kemas kini `config/apps-script-url.txt`.
 
 ### Naik taraf
 

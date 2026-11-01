@@ -34,8 +34,11 @@ if (!htmlPenuh.includes("'@@API_URL@@'")) throw new Error('Index.html tiada pena
 // Versi Apps Script: guna google.script.run
 fs.writeFileSync(path.join(dist, 'Index.html'), htmlPenuh.replace("'@@API_URL@@'", "''"));
 
-// Versi hos luar (Netlify): panggil web app Apps Script melalui fetch. URL daripada env APPS_SCRIPT_URL.
-const url = (process.env.APPS_SCRIPT_URL || '').trim();
+// Versi hos luar (Vercel): panggil web app Apps Script melalui fetch.
+// Keutamaan: env APPS_SCRIPT_URL (Vercel), kemudian config/apps-script-url.txt dalam repo.
+// URL ini bukan rahsia: ia kelihatan dalam kod halaman. Keselamatan bergantung pada token sesi.
+const failUrl = path.join(__dirname, '..', 'config', 'apps-script-url.txt');
+const url = (process.env.APPS_SCRIPT_URL || (fs.existsSync(failUrl) ? fs.readFileSync(failUrl, 'utf8') : '')).trim();
 if (url && !/^https:\/\/script\.google\.com\/macros\/s\/[A-Za-z0-9_-]+\/exec$/.test(url)) {
   throw new Error('APPS_SCRIPT_URL tidak sah. Contoh: https://script.google.com/macros/s/AKfy.../exec');
 }

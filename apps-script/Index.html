@@ -124,7 +124,7 @@ function simpanToken(t) {
 function bacaToken() {
   try { return sessionStorage.getItem('tnt_token'); } catch (e) { return null; }
 }
-// Kosong bila dibuka dari Apps Script (google.script.run). Diisi semasa bina untuk hos luar (Netlify).
+// Kosong bila dibuka dari Apps Script (google.script.run). Diisi semasa bina untuk hos luar (Vercel).
 const API_URL = '@@API_URL@@';
 
 async function jalanWeb(fn, args) {

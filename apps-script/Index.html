@@ -339,6 +339,7 @@ function viewTuntutan() {
     el('div', { class: 'kad' }, el('h2', null, 'Tuntutan baharu'),
       el('div', { class: 'grid' }, medan('Bulan tuntutan', bulan), medan('Mula dengan', sumber, 'Salin perjalanan rutin; tarikh dikosongkan.')),
       el('p'), btnBaru),
+    kadImport(),
     el('div', { class: 'kad' }, el('h2', null, 'Tuntutan saya'),
       senarai.length ? el('div', { class: 'jadual-skrol' }, el('table', { class: 'data' },
         el('thead', null, el('tr', null, el('th', null, 'Bulan'), el('th', { class: 'nombor' }, 'Jumlah'), el('th', null, 'Dikemaskini'), el('th', null, 'Dicetak'), el('th'))),
@@ -352,6 +353,68 @@ function viewTuntutan() {
           return el('tr', null, el('td', null, t.label), el('td', { class: 'nombor' }, rm(t.jumlah)), el('td', null, t.dikemaskini_pada),
             el('td', null, t.dicetak_pada || '-'), el('td', null, el('div', { class: 'kumpul' }, bBuka, bCetak, bPadam)));
         })))) : el('p', { class: 'kosong' }, 'Belum ada tuntutan.')));
+}
+
+// ------------------------------------------------------------ Import borang lama (.xlsx)
+
+const SHEETJS = { src: 'https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js',
+  integrity: 'sha384-vtjasyidUo0kW94K5MXDXntzOJpQgBKXmE7e2Ga4LG0skTTLeBi97eFAXsqewJjw' };
+
+function muatSheetJS() {
+  if (window.XLSX) return Promise.resolve();
+  return new Promise((res, rej) => {
+    const s = el('script', { src: SHEETJS.src, integrity: SHEETJS.integrity, crossorigin: 'anonymous', referrerpolicy: 'no-referrer' });
+    s.onload = res;
+    s.onerror = () => rej(new Error('Gagal memuatkan pembaca Excel. Semak sambungan internet.'));
+    document.head.append(s);
+  });
+}
+
+/** Fail .xlsx → { helaian: { A1: nilai } }. Tarikh kekal sebagai nombor siri (ditukar oleh importBorang). */
+async function bacaXlsx(fail) {
+  await muatSheetJS();
+  const wb = XLSX.read(await fail.arrayBuffer(), { type: 'array' });
+  const buku = {};
+  wb.SheetNames.forEach((n) => {
+    const sh = wb.Sheets[n], h = {};
+    Object.keys(sh).forEach((k) => { if (k[0] !== '!' && sh[k] && sh[k].v !== undefined) h[k] = sh[k].v; });
+    buku[n] = h;
+  });
+  return buku;
+}
+
+function kadImport() {
+  const fail = el('input', { type: 'file', accept: '.xlsx' });
+  const kemas = el('input', { type: 'checkbox', checked: !S.boot.profil.nama || !S.boot.profil.ic, style: 'width:auto' });
+  const btn = el('button', { class: 'btn kedua' }, 'Baca fail');
+  btn.onclick = () => tindakan(btn, async () => {
+    const f = fail.files[0];
+    if (!f) throw new Error('Pilih fail .xlsx dahulu.');
+    if (f.size > 5 * 1024 * 1024) throw new Error('Fail terlalu besar (had 5 MB).');
+    const r = importBorang(await bacaXlsx(f));
+    const d = r.data;
+    if (d.pegawai.nama && kemas.checked) {
+      const prof = Object.assign({}, S.boot.profil);
+      MEDAN_PROFIL.forEach(([k]) => { if (d.pegawai[k]) prof[k] = d.pegawai[k]; });
+      try {
+        S.boot.profil = await api('apiSimpanProfil', prof);
+        r.nota.unshift('Profil anda dikemaskini daripada Muka 1 fail ini.');
+      } catch (e) { r.nota.unshift('Profil tidak dikemaskini: ' + e.message); }
+    }
+    // Medan pegawai yang kosong dalam fail diisi daripada profil
+    MEDAN_PROFIL.forEach(([k]) => { if (!d.pegawai[k]) d.pegawai[k] = S.boot.profil[k] || ''; });
+    if (!d.bulan) { d.bulan = bulanIni(); r.nota.unshift('Bulan tuntutan tidak dapat dikesan. Sila tetapkan bulan.'); }
+    if (S.boot.tuntutan.some((t) => t.bulan === d.bulan)) {
+      r.nota.unshift('Tuntutan ' + labelBulan(d.bulan) + ' sudah ada dalam sistem. Tukar bulan, atau padam tuntutan lama sebelum simpan.');
+    }
+    bukaEditor(null, d, { tajuk: 'Diimport daripada ' + f.name + ' (' + r.format + '). Semak, kemudian klik Simpan.', nota: r.nota, jumlahFail: r.jumlahFail });
+  });
+  return el('div', { class: 'kad' }, el('h2', null, 'Import borang lama (Excel)'),
+    el('p', { class: 'bantuan' }, 'Pilih borang TNT yang pernah anda isi dalam Excel (format WP1.4 2026 atau borang 2024). ',
+      'Fail dibaca dalam pelayar anda sahaja dan tidak dimuat naik. Hasilnya dibuka dalam editor untuk disemak sebelum disimpan.'),
+    el('div', { class: 'grid' }, medan('Fail .xlsx', fail),
+      el('label', { class: 'medan', style: 'flex-direction:row;align-items:center;gap:8px' }, kemas, 'Kemaskini profil saya dengan Muka 1 fail ini')),
+    el('p'), btn);
 }
 
 function dataBaru(bulan) {
@@ -384,8 +447,8 @@ function lengkapkan(d) {
 
 // ------------------------------------------------------------ Editor tuntutan
 
-function bukaEditor(id, data) {
-  S.editor = { id: id, d: lengkapkan(salin(data)), berubah: false };
+function bukaEditor(id, data, info) {
+  S.editor = { id: id, d: lengkapkan(salin(data)), berubah: !!info, info: info || null };
   kosongkan(S.isi);
   const d = S.editor.d;
   const ringkasan = el('div', { class: 'kad ringkasan' });
@@ -507,7 +570,9 @@ function bukaEditor(id, data) {
 
   letak(S.isi, el('div', { class: 'baris-alat' }, el('div', { class: 'kumpul' }, kembali, el('h2', null, 'Tuntutan ' + labelBulan(d.bulan))), el('div', { class: 'kumpul' }, butangSimpan(), butangCetak())),
     el('div', { class: 'susun-editor' },
-      el('div', null, muka1, muka2, bahA, bahB, bahC, bahD, bahP, el('div', { class: 'kumpul' }, butangSimpan(), butangCetak())),
+      el('div', null, info ? el('div', { class: 'notis info' }, el('b', null, info.tajuk),
+        info.nota.length ? el('ul', null, info.nota.map((n) => el('li', null, n))) : null) : null,
+        muka1, muka2, bahA, bahB, bahC, bahD, bahP, el('div', { class: 'kumpul' }, butangSimpan(), butangCetak())),
       ringkasan));
   kemaskiniRingkasan(ringkasan);
 }
@@ -528,6 +593,8 @@ function kemaskiniRingkasan(kad) {
     el('h3', null, 'Kadar digunakan'),
     el('div', { class: 'bantuan' }, 'Berkuat kuasa pada ' + formatTarikh(k.tarikh) + (k.kumpulan ? '. Kumpulan gred: ' + k.kumpulan : '. Gred tiada kumpulan.')),
     el('div', { class: 'bantuan' }, 'Elaun makan ' + rm(k.nilai.ELAUN_MAKAN) + ', harian ' + rm(k.nilai.ELAUN_HARIAN) + ', lojing ' + rm(k.nilai.LOJING)),
+    S.editor.info && S.editor.info.jumlahFail ? el('div', { class: 'notis ' + (Math.abs(S.editor.info.jumlahFail - h.jumlah) < 0.005 ? 'info' : 'amaran') },
+      'Jumlah dalam fail asal: ' + rm(S.editor.info.jumlahFail) + (Math.abs(S.editor.info.jumlahFail - h.jumlah) < 0.005 ? ' (sama)' : '. Beza ' + rm(h.jumlah - S.editor.info.jumlahFail) + '; semak kadar atau item yang tidak diimport.')) : null,
     h.pendahuluan ? el('p', { class: 'bantuan' }, (h.pendahuluan.baki < 0 ? 'Baki dituntut: ' : 'Baki dibayar balik: ') + rm(Math.abs(h.pendahuluan.baki))) : null,
     h.amaran.length ? el('div', { class: 'notis amaran' }, el('b', null, 'Semak:'), el('ul', null, h.amaran.map((a) => el('li', null, a)))) : null,
     el('p', { class: 'bantuan' }, 'Angka akhir dikira semula di server semasa simpan dan cetak.'));

@@ -83,3 +83,13 @@ test('format bantuan', () => {
   assert.ok(!g.emelDalamDomain('ali@gmail.com', 'penang.gov.my'));
   assert.strictEqual(g.hariAkhirBulan('2028-02'), '2028-02-29');
 });
+
+test('tinggi baris Muka 2 ikut panjang butiran', () => {
+  const pendek = g.tinggiBarisPerjalanan([{ butiran: 'a' }, { butiran: 'b' }]);
+  assert.strictEqual(pendek, null); // kekal tinggi templat
+  const panjang = 'x'.repeat(200);
+  const t = g.tinggiBarisPerjalanan(Array.from({ length: 13 }, (_, i) => ({ butiran: i === 0 ? panjang : 'pendek' })));
+  assert.strictEqual(t.length, 13);
+  assert.ok(t[0] > t[1], 'baris panjang lebih tinggi');
+  assert.ok(t[0] >= 5 * 14, 'muat 5 baris teks');
+});

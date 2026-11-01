@@ -29,8 +29,8 @@ if n:
             r.shift(row_shift=n)
         ws.merge_cells(str(r))
 if peta.get('tinggiBaris'):
-    for i in range(6, 6 + peta['bilPerjalanan']):
-        wb['Muka 2'].row_dimensions[i].height = peta['tinggiBaris']
+    for i, t in enumerate(peta['tinggiBaris']):
+        wb['Muka 2'].row_dimensions[6 + i].height = t
 # Tiru export Google (scale=4): setiap helaian muat satu halaman
 for ws in wb:
     ws.print_area = None

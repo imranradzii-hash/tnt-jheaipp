@@ -78,7 +78,7 @@ MockSheet.prototype.getRange = function (r, c, nr, nc) {
   rg.copyTo = (sasaran, jenis) => { this.salinFormat = (this.salinFormat || []).concat([[r, sasaran.r, sasaran.nr, jenis]]); };
   return rg;
 };
-MockSheet.prototype.setRowHeights = function (r, n, h) { this.tinggi = [r, n, h]; };
+MockSheet.prototype.setRowHeight = function (r, h) { (this.tinggi = this.tinggi || {})[r] = h; };
 MockSheet.prototype.deleteColumns = function (c, n) { if (c + n - 1 > this.maxCols) throw new Error('deleteColumns luar julat'); this.maxCols -= n; };
 MockSheet.prototype.deleteRows = function (r, n) { if (r + n - 1 > this.maxRows) throw new Error('deleteRows luar julat'); this.maxRows -= n; };
 MockSheet.prototype.insertRowsAfter = function (r, n) { this.disisip = [r, n]; this.maxRows += n; };

@@ -12,6 +12,7 @@ Dalam Negeri WP1.4 (Lampiran D)** secara online, simpan dalam database, dan ceta
 | Log masuk | Emel + kata laluan (SHA-256 berulang, salt unik setiap pengguna). Sesi 6 jam. Lupa kata laluan melalui kod emel. |
 | Profil | Isi sekali: nama, IC, jawatan, gred, bank, gaji, kenderaan, alamat. Disalin ke setiap tuntutan baharu. |
 | Tuntutan | Satu tuntutan sebulan. Isi perjalanan (Muka 2), makan/harian, hotel/lojing, tambang awam, tol, parkir. Jumlah dikira terus di skrin. Boleh salin perjalanan rutin daripada bulan lain. |
+| Import Excel | Pengguna pilih borang TNT lama (.xlsx, format WP1.4 2026 atau borang 2024). Fail dibaca dalam pelayar (SheetJS, tidak dimuat naik), dibuka dalam editor dengan nota perkara yang diabaikan/berbeza, dan dibandingkan dengan jumlah dalam fail asal. Pilihan untuk kemaskini profil daripada Muka 1. |
 | Cetak | Sistem salin Google Sheet templat (ditukar daripada xlsx asal), tulis nilai ke sel, export PDF, kemudian buang salinan. |
 | Admin | Kadar ikut **tarikh kuat kuasa**, kumpulan gred, alamat pejabat, domain emel, pengguna (aktif/admin), semua tuntutan, log audit. |
 
@@ -38,6 +39,8 @@ Templat `TNT JAN 2026 -KOSONG.xlsx` ada dua formula yang tertinggal item. Sistem
 1. **Jumlah Belanja Pelbagai** (Muka 6 L8) hanya jumlahkan Muka 5. **Tol tidak dikira.**
 2. **Jumlah B - Kemudahan Penginapan** (Muka 4 J12) hanya ambil elaun lojing. **Bayaran sewa hotel (BSP) tidak dikira.**
 
+Ruang butiran Muka 2 ditinggikan ikut panjang teks supaya butiran panjang tidak terpotong.
+
 Alamat pejabat dalam templat (PDT Seberang Perai Tengah) diganti dengan `ALAMAT_PEJABAT` dalam Tetapan.
 
 ## Pasang (sekali sahaja)
@@ -56,7 +59,7 @@ Alamat pejabat dalam templat (PDT Seberang Perai Tengah) diganti dengan `ALAMAT_
 7. **Deploy → New deployment → Web app**: *Execute as: Me*, *Who has access: Anyone with Google account*
    (atau *Anyone within penang.gov.my* untuk lapisan keselamatan tambahan jika semua staf ada akaun Workspace).
 8. Buka URL web app → **Daftar akaun** dengan emel admin anda.
-9. Admin > **Tetapan**: isi `ALAMAT_PEJABAT`. Admin > **Kumpulan gred** dan **Kadar**: isi elaun makan, harian
+9. Admin > **Tetapan**: semak `ALAMAT_PEJABAT` (lalai: alamat JHEAIPP Lebuh Pantai). Admin > **Kumpulan gred** dan **Kadar**: isi elaun makan, harian
    dan lojing ikut pekeliling semasa. Sahkan juga kadar mileage (diambil daripada templat: 0.90/0.80 kereta,
    0.60/0.50 motosikal).
 
@@ -73,11 +76,14 @@ npm run pratonton   # isi templat xlsx asal dengan data contoh → pratonton.xls
 node tests/pratonton-ui.js   # UI di http://localhost:8787 dengan backend mock
 ```
 
+`python3 -I tools/xlsx-json.py fail.xlsx` menukar borang lama kepada peta sel JSON (sama seperti input parser
+import di pelayar) untuk menguji `ImportBorang.js` dengan fail sebenar. Jangan commit fail yang ada data peribadi.
+
 `docs/contoh-cetakan-pratonton.pdf` ialah contoh cetakan dengan data rekaan (render LibreOffice; output sebenar
 datang daripada export Google Sheets).
 
 Struktur `apps-script/`: `Config` (tab, kod kadar), `Util`, `Kiraan` (kiraan + kadar ikut tarikh, tulen),
-`PetaBorang` (peta sel templat, tulen), `Data`, `Auth`, `Api`, `Admin`, `Cetak`, `Setup`, `Index.html`.
+`PetaBorang` (peta sel templat, tulen), `ImportBorang` (baca borang lama, pelayar sahaja), `Data`, `Auth`, `Api`, `Admin`, `Cetak`, `Setup`, `Index.html`.
 
 ## Keselamatan & PDPA
 

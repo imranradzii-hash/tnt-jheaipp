@@ -71,7 +71,7 @@ var LALAI = {
   ],
   Tetapan: [
     ['DOMAIN_EMEL', 'penang.gov.my', 'Hanya emel domain ini boleh mendaftar (pisahkan dengan koma jika lebih dari satu)'],
-    ['ALAMAT_PEJABAT', '', 'Alamat pejabat yang dicetak di Muka 1 (huruf besar)'],
+    ['ALAMAT_PEJABAT', 'JABATAN HAL EHWAL AGAMA ISLAM PULAU PINANG, 10300 LEBUH PANTAI, PULAU PINANG', 'Alamat pejabat yang dicetak di Muka 1 (huruf besar)'],
     ['TEMPLAT_ID', '', 'ID Google Sheet templat borang (diisi oleh sediakanTemplat)'],
     ['FOLDER_SEMENTARA_ID', '', 'Folder Drive untuk salinan sementara semasa cetak (kosong = My Drive)'],
     ['TEMPOH_SIMPAN_BULAN', '24', 'Tempoh simpan tuntutan (bulan) sebelum boleh dipadam admin']

@@ -14,4 +14,6 @@ function muat(fail, tambahan) {
 
 const TULEN = ['Config.js', 'Util.js', 'Kiraan.js', 'PetaBorang.js'];
 
-module.exports = { muat, TULEN };
+const IMPORT = TULEN.concat(['ImportBorang.js']);
+
+module.exports = { muat, TULEN, IMPORT };

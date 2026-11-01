@@ -4,12 +4,14 @@ const fs = require('fs');
 const path = require('path');
 
 const SUSUNAN = ['Config.js', 'Util.js', 'Kiraan.js', 'PetaBorang.js', 'Data.js', 'Auth.js', 'Api.js', 'Admin.js', 'Cetak.js', 'Setup.js'];
-const KLIEN = ['Config.js', 'Util.js', 'Kiraan.js'];
+const KLIEN = ['Config.js', 'Util.js', 'Kiraan.js', 'ImportBorang.js'];
+// Fail yang hanya dijalankan di pelayar (tidak masuk Kod.gs)
+const KLIEN_SAHAJA = ['ImportBorang.js'];
 const src = path.join(__dirname, '..', 'apps-script');
 const dist = path.join(__dirname, '..', 'dist');
 
 const ada = fs.readdirSync(src).filter((f) => f.endsWith('.js')).sort();
-const tertinggal = ada.filter((f) => !SUSUNAN.includes(f));
+const tertinggal = ada.filter((f) => !SUSUNAN.includes(f) && !KLIEN_SAHAJA.includes(f));
 if (tertinggal.length) throw new Error('Fail belum disenaraikan dalam SUSUNAN: ' + tertinggal.join(', '));
 
 fs.mkdirSync(dist, { recursive: true });

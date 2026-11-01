@@ -9,12 +9,28 @@
 
 var BARIS_PERJALANAN_MULA = 6;   // Muka 2: baris data pertama
 var BARIS_PERJALANAN_TEMPLAT = 2; // templat asal ada 2 baris data (6 dan 7)
-var TINGGI_RUANG_PERJALANAN = 430; // jumlah tinggi (pt) baris 6-7 templat; dibahagi sama rata bila baris lebih
+var TINGGI_RUANG_PERJALANAN = 430; // jumlah tinggi (pt) baris 6-7 templat
+var AKSARA_SEBARIS = 48;             // anggaran aksara sebaris dalam lajur Butiran (D)
+var TINGGI_SEBARIS = 14;             // pt bagi setiap baris teks
 
-/** Tinggi setiap baris perjalanan (pt) bila baris melebihi templat; null = kekal tinggi templat. */
-function tinggiBarisPerjalanan(n) {
-  if (n <= BARIS_PERJALANAN_TEMPLAT) return null;
-  return Math.max(30, Math.floor(TINGGI_RUANG_PERJALANAN / n));
+/**
+ * Tinggi setiap baris perjalanan (pt), ikut panjang butiran supaya teks tidak terpotong.
+ * null = kekal tinggi templat (2 baris atau kurang dan butiran muat).
+ */
+function tinggiBarisPerjalanan(perjalanan) {
+  var perlu = perjalanan.map(function (r) {
+    var baris = teks(r.butiran).split(/\n/).reduce(function (s, x) { return s + Math.max(1, Math.ceil(x.length / AKSARA_SEBARIS)); }, 0);
+    return Math.max(28, baris * TINGGI_SEBARIS + 8);
+  });
+  if (perjalanan.length <= BARIS_PERJALANAN_TEMPLAT) {
+    var templat = TINGGI_RUANG_PERJALANAN / BARIS_PERJALANAN_TEMPLAT;
+    if (perlu.every(function (t) { return t <= templat; })) return null;
+    return perlu.map(function (t) { return Math.max(t, templat); });
+  }
+  // Isi ruang templat jika masih ada baki, supaya Muka 2 tidak nampak kosong di bawah
+  var jumlah = perlu.reduce(function (s, t) { return s + t; }, 0);
+  var tambah = jumlah < TINGGI_RUANG_PERJALANAN ? (TINGGI_RUANG_PERJALANAN - jumlah) / perlu.length : 0;
+  return perlu.map(function (t) { return Math.floor(t + tambah); });
 }
 
 /** Baris terakhir dan lajur terakhir yang dicetak bagi setiap helaian (selepas sisipan baris Muka 2). */
@@ -160,5 +176,5 @@ function petaBorang(data, hasil, tetapan) {
     tulis('Muka 7', 'G25', rmTeks(Math.abs(hasil.pendahuluan.baki)));
   }
 
-  return { sel: sel, tambahBaris: tambah, bilPerjalanan: n, tinggiBaris: tinggiBarisPerjalanan(n), julat: julatCetak(tambah) };
+  return { sel: sel, tambahBaris: tambah, bilPerjalanan: n, tinggiBaris: tinggiBarisPerjalanan(data.perjalanan), julat: julatCetak(tambah) };
 }

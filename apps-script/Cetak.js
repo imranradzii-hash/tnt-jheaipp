@@ -26,7 +26,7 @@ function isiSalinan(ss, peta) {
       sh2.getRange(BARIS_PERJALANAN_MULA + BARIS_PERJALANAN_TEMPLAT, 1, peta.tambahBaris, lebar),
       SpreadsheetApp.CopyPasteType.PASTE_FORMAT, false);
   }
-  if (peta.tinggiBaris) sh2.setRowHeights(BARIS_PERJALANAN_MULA, peta.bilPerjalanan, peta.tinggiBaris);
+  if (peta.tinggiBaris) peta.tinggiBaris.forEach(function (t, i) { sh2.setRowHeight(BARIS_PERJALANAN_MULA + i, t); });
 
   var ikutHelaian = {};
   peta.sel.forEach(function (x) { (ikutHelaian[x[0]] = ikutHelaian[x[0]] || []).push(x); });

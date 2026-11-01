@@ -16,14 +16,21 @@ Dalam Negeri WP1.4 (Lampiran D)** secara online, simpan dalam database, dan ceta
 | Cetak | Sistem salin Google Sheet templat (ditukar daripada xlsx asal), tulis nilai ke sel, export PDF, kemudian buang salinan. |
 | Admin | Kadar ikut **tarikh kuat kuasa**, kumpulan gred, alamat pejabat, domain emel, pengguna (aktif/admin), semua tuntutan, log audit. |
 
-### Pekeliling baharu (contoh: mileage kereta naik ke RM1.00)
+### Pekeliling baharu (contoh: EPK kereta naik ke RM1.00)
 
-Admin > Kadar > **Pekeliling baharu: tambah kadar** → pilih *Kereta: kadar peringkat pertama*, nilai `1.00`,
-tarikh kuat kuasa `01/01/2027`, rujukan pekeliling. Kadar lama **tidak dipadam**: tuntutan bulan sebelum
-tarikh itu (walaupun dicetak semula kemudian) kekal guna kadar lama. Kadar dipilih ikut **1hb bulan tuntutan**.
+Admin > Kadar > **Pekeliling baharu: tambah kadar** → pilih kadar, isi nilai, tarikh **bulan tuntutan pertama**
+yang terpakai dan nombor surat. Kadar lama **tidak dipadam**, jadi tuntutan bulan sebelumnya (walaupun dicetak
+semula kemudian) kekal guna kadar lama. Sistem pilih kadar ikut **1hb bulan tuntutan**.
 
-Kadar yang boleh diubah: had km peringkat pertama (500), kadar kereta/motosikal dua peringkat, elaun makan,
-elaun harian dan elaun lojing ikut kumpulan gred.
+Kadar lalai semasa pasang (Pulau Pinang):
+
+| Bulan tuntutan | Kereta ≤500 / >500 km | Motosikal | Rujukan |
+|---|---|---|---|
+| Sebelum Jan 2026 | 0.85 / 0.75 | tiada | Borang TNT Sept 2025 |
+| Jan–Mac 2026 | 0.90 / 0.80 | 0.60 / 0.50 | JKNPP.100.4/1/4(22), 28/01/2026 |
+| April 2026 dan seterusnya | 1.00 / 0.90 | 0.65 / 0.55 | JKNPP.100.4/1/4 (26), 24/04/2026 (kuat kuasa 1 Mei 2026 bagi tuntutan bulan April 2026) |
+
+Elaun makan, elaun harian dan elaun lojing ikut kumpulan gred perlu diisi admin.
 
 ### Bahagian borang yang diisi
 
@@ -60,8 +67,7 @@ Alamat pejabat dalam templat (PDT Seberang Perai Tengah) diganti dengan `ALAMAT_
    (atau *Anyone within penang.gov.my* untuk lapisan keselamatan tambahan jika semua staf ada akaun Workspace).
 8. Buka URL web app → **Daftar akaun** dengan emel admin anda.
 9. Admin > **Tetapan**: semak `ALAMAT_PEJABAT` (lalai: alamat JHEAIPP Lebuh Pantai). Admin > **Kumpulan gred** dan **Kadar**: isi elaun makan, harian
-   dan lojing ikut pekeliling semasa. Sahkan juga kadar mileage (diambil daripada templat: 0.90/0.80 kereta,
-   0.60/0.50 motosikal).
+   dan lojing ikut pekeliling semasa. Kadar mileage sudah diisi (lihat jadual di atas).
 
 ### Naik taraf
 

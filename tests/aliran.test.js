@@ -113,3 +113,20 @@ test('input berbahaya dineutralkan sebelum masuk Sheet', () => {
   assert.strictEqual(g.ctx.sanitizeForSheet(d.pegawai.jawatan)[0], "'");
   assert.ok(sh.getLastRow() === 2);
 });
+
+test('kadar lalai EPK Pulau Pinang ikut bulan tuntutan', () => {
+  const { g } = sistem();
+  const ali = daftar(g, 'ali@penang.gov.my', 'Ali');
+  g.ctx.apiSimpanProfil(ali.token, DATA.pegawai);
+  const kadarBulan = (bulan) => {
+    const d = JSON.parse(JSON.stringify(DATA)); d.bulan = bulan;
+    d.perjalanan.forEach((x) => { x.tarikh = bulan + x.tarikh.slice(7); });
+    d.perjalanan.push({ tarikh: bulan + '-20', butiran: 'moto', jarak: 10, kenderaan: 'MOTOSIKAL' });
+    const m = g.ctx.apiSimpanTuntutan(ali.token, null, d).hasil.C.mileage;
+    return [m.kereta_1.kadar, m.kereta_2.kadar, m.moto_1.kadar];
+  };
+  assert.deepStrictEqual(kadarBulan('2025-09'), [0.85, 0.75, 0]);
+  assert.deepStrictEqual(kadarBulan('2026-03'), [0.9, 0.8, 0.6]);
+  assert.deepStrictEqual(kadarBulan('2026-04'), [1, 0.9, 0.65]); // tuntutan April guna kadar baharu
+  assert.deepStrictEqual(kadarBulan('2026-10'), [1, 0.9, 0.65]);
+});

@@ -61,13 +61,21 @@ var JENIS_AWAM = [
 var TARIKH_ASAS = '2000-01-01';
 
 var LALAI = {
-  // Kadar kenderaan diambil daripada templat "TNT JAN 2026 -KOSONG.xlsx". Admin wajib sahkan dengan pekeliling semasa.
+  // Kadar mileage (EPK) Pulau Pinang. Tarikh kuat kuasa di sini = 1hb BULAN TUNTUTAN pertama yang terpakai.
+  // Surat JKN 24/04/2026: kadar baharu berkuat kuasa 1 Mei 2026 bagi tuntutan bulan April 2026 → 2026-04-01.
+  // Kadar sebelum 2026 diambil daripada borang TNT Sept 2025 (kereta sahaja; motosikal tiada data).
   Kadar: [
-    ['k1', 'AMBANG_KM', '', '500', TARIKH_ASAS, 'Templat TNT JAN 2026', 'setup', ''],
-    ['k2', 'KERETA_1', '', '0.90', TARIKH_ASAS, 'Templat TNT JAN 2026', 'setup', ''],
-    ['k3', 'KERETA_2', '', '0.80', TARIKH_ASAS, 'Templat TNT JAN 2026', 'setup', ''],
-    ['k4', 'MOTO_1', '', '0.60', TARIKH_ASAS, 'Templat TNT JAN 2026', 'setup', ''],
-    ['k5', 'MOTO_2', '', '0.50', TARIKH_ASAS, 'Templat TNT JAN 2026', 'setup', '']
+    ['k1', 'AMBANG_KM', '', '500', TARIKH_ASAS, 'PP WP1.4', 'setup', ''],
+    ['k2', 'KERETA_1', '', '0.85', TARIKH_ASAS, 'Borang TNT Sept 2025 (sebelum PP WP1.4 2026)', 'setup', ''],
+    ['k3', 'KERETA_2', '', '0.75', TARIKH_ASAS, 'Borang TNT Sept 2025 (sebelum PP WP1.4 2026)', 'setup', ''],
+    ['k4', 'KERETA_1', '', '0.90', '2026-01-01', 'JKNPP.100.4/1/4(22) 28/01/2026: PP WP1.4 2026, EPK mulai 1 Jan 2026', 'setup', ''],
+    ['k5', 'KERETA_2', '', '0.80', '2026-01-01', 'JKNPP.100.4/1/4(22) 28/01/2026: PP WP1.4 2026, EPK mulai 1 Jan 2026', 'setup', ''],
+    ['k6', 'MOTO_1', '', '0.60', '2026-01-01', 'JKNPP.100.4/1/4(22) 28/01/2026: PP WP1.4 2026, EPK mulai 1 Jan 2026', 'setup', ''],
+    ['k7', 'MOTO_2', '', '0.50', '2026-01-01', 'JKNPP.100.4/1/4(22) 28/01/2026: PP WP1.4 2026, EPK mulai 1 Jan 2026', 'setup', ''],
+    ['k8', 'KERETA_1', '', '1.00', '2026-04-01', 'JKNPP.100.4/1/4 (26) 24/04/2026: kuat kuasa 1 Mei 2026 bagi tuntutan bulan April 2026', 'setup', ''],
+    ['k9', 'KERETA_2', '', '0.90', '2026-04-01', 'JKNPP.100.4/1/4 (26) 24/04/2026: kuat kuasa 1 Mei 2026 bagi tuntutan bulan April 2026', 'setup', ''],
+    ['k10', 'MOTO_1', '', '0.65', '2026-04-01', 'JKNPP.100.4/1/4 (26) 24/04/2026: kuat kuasa 1 Mei 2026 bagi tuntutan bulan April 2026', 'setup', ''],
+    ['k11', 'MOTO_2', '', '0.55', '2026-04-01', 'JKNPP.100.4/1/4 (26) 24/04/2026: kuat kuasa 1 Mei 2026 bagi tuntutan bulan April 2026', 'setup', '']
   ],
   Tetapan: [
     ['DOMAIN_EMEL', 'penang.gov.my', 'Hanya emel domain ini boleh mendaftar (pisahkan dengan koma jika lebih dari satu)'],

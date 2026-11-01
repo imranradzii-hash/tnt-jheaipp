@@ -146,7 +146,7 @@ function binaGas() {
     Logger: { log: () => {} },
     HtmlService: {}
   };
-  const ctx = muat(['Config.js', 'Util.js', 'Kiraan.js', 'PetaBorang.js', 'Data.js', 'Auth.js', 'Api.js', 'Admin.js', 'Cetak.js', 'Setup.js'], gas);
+  const ctx = muat(['Config.js', 'Util.js', 'Kiraan.js', 'PetaBorang.js', 'Data.js', 'Auth.js', 'Api.js', 'Admin.js', 'Cetak.js', 'Web.js', 'Setup.js'], gas);
   return {
     ctx, state, ss,
     sediakan() {

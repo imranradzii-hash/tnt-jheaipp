@@ -124,11 +124,31 @@ function simpanToken(t) {
 function bacaToken() {
   try { return sessionStorage.getItem('tnt_token'); } catch (e) { return null; }
 }
+// Kosong bila dibuka dari Apps Script (google.script.run). Diisi semasa bina untuk hos luar (Netlify).
+const API_URL = '@@API_URL@@';
+
+async function jalanWeb(fn, args) {
+  let r;
+  try {
+    // text/plain supaya tiada CORS preflight (Apps Script tidak menjawab OPTIONS)
+    r = await fetch(API_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify({ fn, args }) });
+  } catch (e) { throw new Error('Tidak dapat menghubungi pelayan. Semak sambungan internet.'); }
+  if (!r.ok) throw new Error('Pelayan tidak dapat dihubungi (kod ' + r.status + ').');
+  let j;
+  try { j = await r.json(); } catch (e) { throw new Error('Jawapan pelayan tidak sah. Semak tetapan deploy Apps Script (akses: Anyone).'); }
+  if (!j.ok) throw new Error(j.ralat);
+  return j.hasil;
+}
+
 function jalan(fn, ...args) {
-  return new Promise((res, rej) => {
-    const r = google.script.run.withSuccessHandler(res).withFailureHandler(rej);
-    r[fn].apply(r, args);
-  });
+  if (API_URL && /^https:/.test(API_URL)) return jalanWeb(fn, args);
+  if (window.google && google.script && google.script.run) {
+    return new Promise((res, rej) => {
+      const r = google.script.run.withSuccessHandler(res).withFailureHandler(rej);
+      r[fn].apply(r, args);
+    });
+  }
+  return Promise.reject(new Error('Alamat pelayan (APPS_SCRIPT_URL) belum ditetapkan.'));
 }
 const mesejRalat = (err) => String((err && err.message) || err).replace(/^Error:\s*/, '');
 async function api(fn, ...args) {

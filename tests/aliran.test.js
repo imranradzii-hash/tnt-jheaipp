@@ -130,3 +130,15 @@ test('kadar lalai EPK Pulau Pinang ikut bulan tuntutan', () => {
   assert.deepStrictEqual(kadarBulan('2026-04'), [1, 0.9, 0.65]); // tuntutan April guna kadar baharu
   assert.deepStrictEqual(kadarBulan('2026-10'), [1, 0.9, 0.65]);
 });
+
+test('doPost (hos luar): hanya fungsi api dalam senarai, ralat dipulangkan sebagai JSON', () => {
+  const { g } = sistem();
+  const p = (o) => g.ctx.prosesPanggilan(JSON.stringify(o));
+  assert.strictEqual(p({ fn: 'apiDomain', args: [] }).hasil, 'penang.gov.my');
+  assert.match(p({ fn: 'setupSistem', args: [] }).ralat, /tidak dikenali/);
+  assert.match(p({ fn: 'hashKataLaluan', args: ['a', 'b'] }).ralat, /tidak dikenali/);
+  assert.match(p({ fn: 'apiMula', args: ['token-palsu'] }).ralat, /Unauthorized/);
+  assert.match(g.ctx.prosesPanggilan('bukan json').ralat, /tidak sah/);
+  const r = p({ fn: 'apiLogMasuk', args: ['admin@penang.gov.my', 'rahsia123'] });
+  assert.ok(r.ok && r.hasil.token);
+});

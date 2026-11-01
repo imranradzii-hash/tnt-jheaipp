@@ -1,0 +1,17 @@
+# Netlify: bina paparan daripada apps-script/Index.html. URL web app Apps Script dibaca daripada
+# config/apps-script-url.txt (atau env APPS_SCRIPT_URL jika ditetapkan di Netlify).
+[build]
+  command = "node tools/bina.js"
+  publish = "web"
+
+[build.environment]
+  NODE_VERSION = "20"
+
+[[headers]]
+  for = "/*"
+  [headers.values]
+    Content-Security-Policy = "default-src 'self'; script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline'; connect-src https://script.google.com https://script.googleusercontent.com; img-src 'self' data: blob:; object-src 'none'; base-uri 'self'; frame-ancestors 'none'; form-action 'self'"
+    X-Frame-Options = "DENY"
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "no-referrer"
+    Permissions-Policy = "camera=(), microphone=(), geolocation=()"

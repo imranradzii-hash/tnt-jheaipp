@@ -5,74 +5,216 @@
 <meta charset="utf-8">
 <title>Tuntutan Perjalanan (TNT) JHEAIPP</title>
 <style>
+  /* ---------- Token reka bentuk: warna Jata Negeri Pulau Pinang ---------- */
   :root {
-    --bg: #f4f6f3; --kad: #ffffff; --teks: #1c2a22; --lemah: #5b6b62; --garis: #dbe3dc;
-    --utama: #0d6b4f; --utama-gelap: #08503a; --utama-lembut: #e3f2ec; --emas: #b8862b;
-    --sekat: #b42318; --sekat-lembut: #fdecea; --amaran: #8a5a00; --amaran-lembut: #fff4dc;
-    --ok: #0f7a4a; --ok-lembut: #e3f5ec; --jejari: 10px;
+    --navy: #0b2a4a; --navy-2: #103a66;
+    --biru: #044caa; --biru-gelap: #033a85; --biru-lembut: #eaf1fb; --biru-garis: #c2d5f0;
+    --kuning: #f9db00; --kuning-lembut: #fff8d1; --kuning-teks: #6b5600;
+    --latar: #f2f5f9; --permukaan: #ffffff; --garis: #dce3ec; --garis-kuat: #c5cfdb;
+    --teks: #13233a; --teks-2: #4b5c72; --teks-3: #77879a;
+    --ok: #0f7a4a; --ok-lembut: #e3f5ec; --amaran: #8a5a00; --amaran-lembut: #fff3d6; --sekat: #b42318; --sekat-lembut: #fdecea;
+    --r: 10px; --r-kecil: 6px;
+    --bayang: 0 1px 2px rgba(11, 42, 74, .06), 0 2px 8px rgba(11, 42, 74, .04);
+    --bayang-timbul: 0 8px 28px rgba(11, 42, 74, .16);
+    /* alias nama lama yang masih dirujuk dalam kod */
+    --utama: var(--biru); --utama-gelap: var(--biru-gelap); --utama-lembut: var(--biru-lembut);
+    --lemah: var(--teks-2); --kad: var(--permukaan); --bg: var(--latar);
   }
   * { box-sizing: border-box; }
-  body { margin: 0; background: var(--bg); color: var(--teks); font: 15px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif; }
-  header.atas { background: linear-gradient(120deg, #063d2d, var(--utama) 60%, #12855f); color: #fff; padding: 12px 16px; display: flex; flex-wrap: wrap; gap: 8px 16px; align-items: center; justify-content: space-between; }
-  header.atas h1 { font-size: 17px; margin: 0; font-weight: 600; }
-  header.atas .kecil { font-size: 13px; opacity: .9; }
-  header.atas button { background: rgba(255,255,255,.15); color: #fff; border: 1px solid rgba(255,255,255,.4); border-radius: 8px; padding: 6px 12px; font: inherit; font-size: 13px; cursor: pointer; }
-  nav.tab { background: var(--kad); border-bottom: 1px solid var(--garis); display: flex; gap: 4px; padding: 0 12px; overflow-x: auto; }
-  nav.tab button { background: none; border: 0; border-bottom: 3px solid transparent; padding: 12px 12px 9px; font: inherit; color: var(--lemah); cursor: pointer; white-space: nowrap; }
-  nav.tab button.aktif { color: var(--utama); border-bottom-color: var(--utama); font-weight: 600; }
-  main { max-width: 1180px; margin: 0 auto; padding: 16px; }
-  .kad { background: var(--kad); border: 1px solid var(--garis); border-radius: var(--jejari); padding: 16px; margin-bottom: 16px; }
-  .kad h2 { font-size: 17px; margin: 0 0 12px; }
-  .kad h3 { font-size: 13px; margin: 18px 0 8px; color: var(--lemah); text-transform: uppercase; letter-spacing: .03em; }
-  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 12px; }
+  html { -webkit-text-size-adjust: 100%; }
+  body { margin: 0; background: var(--latar); color: var(--teks); font: 15px/1.55 "Segoe UI", system-ui, -apple-system, Roboto, "Helvetica Neue", Arial, sans-serif; }
+  h1, h2, h3 { line-height: 1.25; }
+  .angka { font-variant-numeric: tabular-nums; }
+  :focus-visible { outline: 3px solid var(--biru); outline-offset: 2px; }
+  .jalur-bendera { height: 4px; background: linear-gradient(90deg, var(--biru) 0 33.33%, #fff 33.33% 66.66%, var(--kuning) 66.66%); }
+
+  /* ---------- Kepala & navigasi ---------- */
+  header.atas { background: linear-gradient(100deg, var(--navy), var(--navy-2)); color: #fff; }
+  header.atas .dalam { max-width: 1200px; margin: 0 auto; padding: 10px 16px; display: flex; gap: 12px 20px; align-items: center; justify-content: space-between; flex-wrap: wrap; }
+  .jenama { display: flex; align-items: center; gap: 12px; min-width: 0; }
+  .jenama img { height: 46px; width: auto; flex: none; }
+  .jenama .nama-sistem { font-size: 16px; font-weight: 700; margin: 0; letter-spacing: .01em; }
+  .jenama .nama-jabatan { font-size: 12px; opacity: .85; }
+  .pengguna { display: flex; align-items: center; gap: 10px; font-size: 13px; }
+  .pengguna .avatar { width: 32px; height: 32px; border-radius: 50%; background: var(--kuning); color: var(--navy); display: grid; place-items: center; font-weight: 700; font-size: 13px; }
+  .pengguna button { background: transparent; color: #fff; border: 1px solid rgba(255,255,255,.45); border-radius: var(--r-kecil); padding: 6px 12px; font: inherit; cursor: pointer; min-height: 34px; }
+  .pengguna button:hover { background: rgba(255,255,255,.1); }
+  .pengguna button:focus-visible { outline-color: var(--kuning); }
+  nav.tab { background: var(--permukaan); border-bottom: 1px solid var(--garis); }
+  nav.tab .dalam { max-width: 1200px; margin: 0 auto; display: flex; gap: 2px; padding: 0 8px; overflow-x: auto; }
+  nav.tab button { background: none; border: 0; border-bottom: 3px solid transparent; padding: 13px 14px 10px; font: inherit; font-size: 14px; color: var(--teks-2); cursor: pointer; white-space: nowrap; min-height: 46px; }
+  nav.tab button:hover { color: var(--teks); }
+  nav.tab button.aktif { color: var(--biru); border-bottom-color: var(--kuning); font-weight: 600; }
+  main { max-width: 1200px; margin: 0 auto; padding: 20px 16px 32px; }
+
+  /* ---------- Permukaan, tajuk, medan ---------- */
+  .kad { background: var(--permukaan); border: 1px solid var(--garis); border-radius: var(--r); padding: 20px; margin-bottom: 16px; box-shadow: var(--bayang); }
+  .kad h2 { font-size: 17px; margin: 0 0 4px; }
+  .kad h3 { font-size: 12px; margin: 20px 0 10px; color: var(--teks-2); text-transform: uppercase; letter-spacing: .06em; }
+  .kad > .bantuan:first-of-type { margin-top: 0; }
+  .tajuk-halaman { display: flex; flex-wrap: wrap; gap: 12px; align-items: flex-end; justify-content: space-between; margin: 4px 0 18px; }
+  .tajuk-halaman h1 { font-size: 22px; margin: 0; }
+  .tajuk-halaman p { margin: 4px 0 0; color: var(--teks-2); font-size: 14px; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 14px 16px; }
   .penuh { grid-column: 1 / -1; }
-  label.medan { display: flex; flex-direction: column; gap: 4px; font-size: 13px; color: var(--lemah); }
-  input, select, textarea { font: inherit; font-size: 15px; color: var(--teks); padding: 8px 10px; border: 1px solid var(--garis); border-radius: 8px; background: #fff; width: 100%; }
-  textarea { min-height: 60px; resize: vertical; }
-  input:focus, select:focus, textarea:focus { outline: 2px solid var(--utama-lembut); border-color: var(--utama); }
-  button.btn { font: inherit; font-size: 14px; border-radius: 8px; padding: 8px 14px; border: 1px solid var(--utama); background: var(--utama); color: #fff; cursor: pointer; }
-  button.btn:hover { background: var(--utama-gelap); }
-  button.btn.kedua { background: #fff; color: var(--utama); }
-  button.btn.kedua:hover { background: var(--utama-lembut); }
-  button.btn.bahaya { background: #fff; color: var(--sekat); border-color: var(--sekat); }
-  button.btn.kecil { padding: 4px 10px; font-size: 13px; }
+  label.medan { display: flex; flex-direction: column; gap: 5px; font-size: 13px; font-weight: 600; color: var(--teks); }
+  label.medan .bantuan { font-weight: 400; }
+  input, select, textarea { font: inherit; font-size: 15px; font-weight: 400; color: var(--teks); padding: 9px 11px; border: 1px solid var(--garis-kuat); border-radius: var(--r-kecil); background: #fff; width: 100%; min-height: 42px; }
+  input::placeholder, textarea::placeholder { color: var(--teks-3); }
+  textarea { min-height: 70px; resize: vertical; }
+  input:hover, select:hover, textarea:hover { border-color: #9fb0c4; }
+  input:focus, select:focus, textarea:focus { outline: 3px solid var(--biru-lembut); border-color: var(--biru); }
+  input[type=checkbox] { min-height: 0; width: 18px; height: 18px; accent-color: var(--biru); }
+  input[type=file] { padding: 7px; background: var(--latar); }
+
+  /* ---------- Butang ---------- */
+  button.btn { font: inherit; font-size: 14px; font-weight: 600; border-radius: var(--r-kecil); padding: 9px 16px; min-height: 40px; border: 1px solid var(--biru); background: var(--biru); color: #fff; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; }
+  button.btn:hover { background: var(--biru-gelap); border-color: var(--biru-gelap); }
+  button.btn:active { transform: translateY(1px); }
+  button.btn.kedua { background: #fff; color: var(--biru); border-color: var(--biru-garis); }
+  button.btn.kedua:hover { background: var(--biru-lembut); border-color: var(--biru); }
+  button.btn.bahaya { background: #fff; color: var(--sekat); border-color: #f0c2bd; }
+  button.btn.bahaya:hover { background: var(--sekat-lembut); }
+  button.btn.kecil { padding: 5px 11px; min-height: 32px; font-size: 13px; }
+  button.btn.besar { padding: 12px 22px; min-height: 48px; font-size: 15px; }
   button:disabled { opacity: .55; cursor: wait; }
-  button.pautan { background: none; border: 0; color: var(--utama); cursor: pointer; font: inherit; padding: 0; text-decoration: underline; }
+  button.pautan { background: none; border: 0; color: var(--biru); cursor: pointer; font: inherit; padding: 0; text-decoration: underline; text-underline-offset: 2px; }
   .kumpul { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
-  .baris-alat { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; justify-content: space-between; margin-bottom: 12px; }
-  .baris-alat h2 { margin: 0; }
-  .bantuan { font-size: 12px; color: var(--lemah); }
+  .baris-alat { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+  .baris-alat h2 { margin: 0; font-size: 20px; }
+  .bantuan { font-size: 13px; color: var(--teks-2); line-height: 1.5; }
+
+  /* ---------- Jadual ---------- */
   .jadual-skrol { overflow-x: auto; }
   table.data { width: 100%; border-collapse: collapse; font-size: 14px; }
-  table.data th { text-align: left; font-weight: 600; color: var(--lemah); font-size: 12px; text-transform: uppercase; letter-spacing: .03em; border-bottom: 1px solid var(--garis); padding: 8px; white-space: nowrap; }
-  table.data td { border-bottom: 1px solid var(--garis); padding: 6px 8px; vertical-align: top; }
-  table.data td.nombor, table.data th.nombor { text-align: right; white-space: nowrap; }
-  table.perjalanan td { padding: 4px; }
-  table.perjalanan input, table.perjalanan select, table.perjalanan textarea { padding: 6px; font-size: 14px; }
-  table.perjalanan textarea { min-height: 38px; min-width: 200px; }
-  .lencana { display: inline-block; font-size: 12px; font-weight: 600; padding: 2px 8px; border-radius: 999px; background: var(--utama-lembut); color: var(--utama); white-space: nowrap; }
+  table.data th { text-align: left; font-weight: 600; color: var(--teks-2); font-size: 12px; text-transform: uppercase; letter-spacing: .05em; border-bottom: 1px solid var(--garis-kuat); padding: 10px; white-space: nowrap; background: #f8fafc; }
+  table.data td { border-bottom: 1px solid var(--garis); padding: 10px; vertical-align: middle; }
+  table.data tbody tr:hover td { background: #f8fbff; }
+  table.data td.nombor, table.data th.nombor { text-align: right; white-space: nowrap; font-variant-numeric: tabular-nums; }
+  table.data tfoot td { border-bottom: 0; }
+
+  /* ---------- Lencana & notis ---------- */
+  .lencana { display: inline-flex; align-items: center; gap: 5px; font-size: 12px; font-weight: 600; padding: 3px 9px; border-radius: 999px; background: var(--biru-lembut); color: var(--biru); white-space: nowrap; }
+  .lencana::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+  .lencana.ok { background: var(--ok-lembut); color: var(--ok); }
   .lencana.amaran { background: var(--amaran-lembut); color: var(--amaran); }
-  .notis { border-radius: 8px; padding: 10px 12px; font-size: 14px; margin-bottom: 12px; }
-  .notis.amaran { background: var(--amaran-lembut); color: var(--amaran); }
-  .notis.sekat { background: var(--sekat-lembut); color: var(--sekat); }
-  .notis.info { background: var(--utama-lembut); color: var(--utama-gelap); }
-  .notis ul { margin: 4px 0 0; padding-left: 18px; }
-  .susun-editor { display: grid; grid-template-columns: minmax(0, 1fr) 300px; gap: 16px; align-items: start; }
-  .ringkasan { position: sticky; top: 12px; }
-  .ringkasan table { width: 100%; font-size: 14px; border-collapse: collapse; }
-  .ringkasan td { padding: 4px 0; }
+  .lencana.neutral { background: #eef1f5; color: var(--teks-2); }
+  .notis { border-radius: var(--r-kecil); padding: 12px 14px; font-size: 14px; margin-bottom: 14px; border: 1px solid transparent; }
+  .notis.amaran { background: var(--amaran-lembut); color: var(--amaran); border-color: #f1d9a3; }
+  .notis.sekat { background: var(--sekat-lembut); color: var(--sekat); border-color: #f0c2bd; }
+  .notis.info { background: var(--biru-lembut); color: var(--biru-gelap); border-color: var(--biru-garis); }
+  .notis ul { margin: 6px 0 0; padding-left: 18px; }
+  .kosong { color: var(--teks-2); padding: 18px 0; text-align: center; }
+
+  /* ---------- Papan utama (senarai tuntutan) ---------- */
+  .salam { display: flex; flex-wrap: wrap; gap: 16px; align-items: center; justify-content: space-between; background: linear-gradient(100deg, var(--biru-lembut), #fff 70%); border: 1px solid var(--biru-garis); border-left: 5px solid var(--kuning); border-radius: var(--r); padding: 18px 20px; margin-bottom: 18px; }
+  .salam h1 { font-size: 20px; margin: 0; }
+  .salam p { margin: 4px 0 0; color: var(--teks-2); font-size: 14px; }
+  .dua-lajur { display: grid; grid-template-columns: 1.15fr 1fr; gap: 16px; }
+  .langkah-mini { display: flex; gap: 10px; flex-wrap: wrap; margin: 6px 0 14px; padding: 0; list-style: none; counter-reset: l; }
+  .langkah-mini li { counter-increment: l; font-size: 13px; color: var(--teks-2); display: flex; align-items: center; gap: 6px; }
+  .langkah-mini li::before { content: counter(l); width: 20px; height: 20px; border-radius: 50%; background: var(--navy); color: #fff; font-size: 11px; font-weight: 700; display: grid; place-items: center; }
+
+  /* ---------- Editor tuntutan: bahagian bernombor ---------- */
+  .susun-editor { display: grid; grid-template-columns: minmax(0, 1fr) 320px; gap: 20px; align-items: start; }
+  details.bahagian { background: var(--permukaan); border: 1px solid var(--garis); border-radius: var(--r); margin-bottom: 12px; box-shadow: var(--bayang); }
+  details.bahagian[open] { border-color: var(--biru-garis); }
+  details.bahagian > summary { list-style: none; cursor: pointer; display: grid; grid-template-columns: auto 1fr auto auto; gap: 14px; align-items: center; padding: 16px 18px; border-radius: var(--r); }
+  details.bahagian > summary::-webkit-details-marker { display: none; }
+  details.bahagian > summary:hover { background: #f8fbff; }
+  details.bahagian > summary .no { width: 32px; height: 32px; border-radius: 50%; background: var(--biru-lembut); color: var(--biru); font-weight: 700; display: grid; place-items: center; font-size: 14px; }
+  details.bahagian[open] > summary .no { background: var(--biru); color: #fff; }
+  details.bahagian > summary .tajuk { font-weight: 700; font-size: 16px; }
+  details.bahagian > summary .sub { font-size: 13px; color: var(--teks-2); margin-top: 2px; }
+  details.bahagian > summary .nilai { font-weight: 700; font-variant-numeric: tabular-nums; color: var(--teks); white-space: nowrap; }
+  details.bahagian > summary .nilai.sifar { color: var(--teks-3); font-weight: 400; }
+  details.bahagian > summary .anak-panah { width: 10px; height: 10px; border-right: 2px solid var(--teks-3); border-bottom: 2px solid var(--teks-3); transform: rotate(45deg); transition: transform .15s; margin-right: 4px; }
+  details.bahagian[open] > summary .anak-panah { transform: rotate(-135deg); }
+  details.bahagian > .isi-bahagian { padding: 4px 18px 20px; border-top: 1px solid var(--garis); }
+  .kad-perjalanan { border: 1px solid var(--garis); border-left: 4px solid var(--biru); border-radius: var(--r-kecil); padding: 14px; margin: 14px 0 0; background: #fbfcfe; }
+  .kad-perjalanan .kepala { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-bottom: 10px; }
+  .kad-perjalanan .kepala b { font-size: 14px; color: var(--navy); }
+  .kad-perjalanan .medan-jalan { display: grid; grid-template-columns: 1.3fr 1fr 1fr 1.2fr .9fr; gap: 10px 12px; }
+  .kad-perjalanan .medan-jalan .penuh { grid-column: 1 / -1; }
+  .tambah-jalan { margin-top: 14px; width: 100%; justify-content: center; border-style: dashed !important; }
+  .ringkasan { position: sticky; top: 16px; }
+  .ringkasan h2 { font-size: 15px; text-transform: uppercase; letter-spacing: .06em; color: var(--teks-2); }
+  .ringkasan table { width: 100%; font-size: 14px; border-collapse: collapse; margin-top: 6px; }
+  .ringkasan td { padding: 7px 0; border-bottom: 1px dashed var(--garis); }
   .ringkasan td:last-child { text-align: right; font-variant-numeric: tabular-nums; }
-  .ringkasan tr.jumlah td { border-top: 2px solid var(--teks); font-weight: 700; font-size: 16px; padding-top: 8px; }
-  .log-masuk { min-height: 100vh; background: linear-gradient(135deg, #063d2d, var(--utama) 55%, #1a9a70); padding: 8vh 16px 16px; }
-  .log-masuk .kad { max-width: 420px; margin: 0 auto; }
-  .log-masuk .kad > * + * { margin-top: 12px; }
-  .kosong { color: var(--lemah); padding: 12px 0; }
-  #toast { position: fixed; bottom: 16px; right: 16px; left: 16px; display: flex; flex-direction: column; gap: 8px; align-items: flex-end; z-index: 50; pointer-events: none; }
-  #toast div { background: #1c2a22; color: #fff; padding: 10px 14px; border-radius: 8px; max-width: 480px; box-shadow: 0 4px 16px rgba(0,0,0,.2); pointer-events: auto; }
-  #toast div.ralat { background: var(--sekat); }
-  .notis-privasi { max-width: 1180px; margin: 0 auto 32px; padding: 0 16px; font-size: 12px; color: var(--lemah); }
-  .log-masuk .notis-privasi { color: rgba(255,255,255,.85); max-width: 420px; margin-top: 16px; padding: 0; }
-  @media (max-width: 860px) { .susun-editor { grid-template-columns: minmax(0, 1fr); } .ringkasan { position: static; } }
+  .ringkasan tr.jumlah td { border-bottom: 0; border-top: 2px solid var(--navy); font-weight: 700; font-size: 18px; padding-top: 10px; color: var(--navy); }
+  .bar-tindakan { position: sticky; bottom: 0; z-index: 20; margin-top: 16px; background: rgba(255,255,255,.96); backdrop-filter: blur(6px); border: 1px solid var(--garis); border-top: 3px solid var(--kuning); border-radius: var(--r) var(--r) 0 0; padding: 12px 16px; display: flex; flex-wrap: wrap; gap: 10px; align-items: center; justify-content: space-between; box-shadow: 0 -6px 20px rgba(11, 42, 74, .08); }
+  .bar-tindakan .jumlah-bar { font-size: 13px; color: var(--teks-2); }
+  .bar-tindakan .jumlah-bar b { display: block; font-size: 20px; color: var(--navy); font-variant-numeric: tabular-nums; }
+
+  /* ---------- Muka log masuk: pemandangan Pulau Pinang ---------- */
+  .lm { min-height: 100vh; display: grid; grid-template-columns: minmax(0, 1.35fr) minmax(360px, 460px); background: var(--navy); }
+  .lm-hero { position: relative; overflow: hidden; min-height: 100vh; color: #fff; }
+  .lm-hero svg.pemandangan { position: absolute; inset: 0; width: 100%; height: 100%; }
+  .lm-hero .tindih { position: relative; z-index: 2; padding: 40px 48px; max-width: 640px; }
+  .lm-hero .jata-besar { width: 78px; height: auto; filter: drop-shadow(0 4px 14px rgba(0,0,0,.35)); animation: timbul 1.1s ease-out both; }
+  .lm-hero .kerajaan { margin-top: 18px; font-size: 13px; letter-spacing: .14em; text-transform: uppercase; color: var(--kuning); font-weight: 700; animation: timbul 1.1s .15s ease-out both; }
+  .lm-hero h1 { font-size: 34px; margin: 8px 0 6px; font-weight: 800; letter-spacing: -.01em; animation: timbul 1.1s .25s ease-out both; text-shadow: 0 2px 16px rgba(0,0,0,.25); }
+  .lm-hero .jabatan { font-size: 16px; opacity: .92; animation: timbul 1.1s .35s ease-out both; }
+  .lm-hero .langkah { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 26px; animation: timbul 1.1s .5s ease-out both; }
+  .lm-hero .langkah div { background: rgba(11, 42, 74, .55); border: 1px solid rgba(255,255,255,.2); backdrop-filter: blur(4px); border-radius: 999px; padding: 7px 14px 7px 8px; font-size: 13px; display: flex; align-items: center; gap: 8px; }
+  .lm-hero .langkah b { width: 22px; height: 22px; border-radius: 50%; background: var(--kuning); color: var(--navy); display: grid; place-items: center; font-size: 12px; }
+  .lm-panel { background: var(--latar); display: flex; flex-direction: column; justify-content: center; padding: 32px 28px; border-left: 4px solid var(--kuning); }
+  .lm-panel .kad { padding: 26px; box-shadow: var(--bayang-timbul); border: 0; }
+  .lm-panel .kad > * + * { margin-top: 14px; }
+  .lm-panel .kad h2 { font-size: 20px; }
+  .lm-panel .notis-privasi { margin: 18px 0 0; padding: 0; font-size: 12px; }
+  .lm-panel form button.btn { width: 100%; justify-content: center; }
+  .lm-panel form p { margin: 0 0 12px; }
+  .lm-panel .pautan-bawah { display: flex; flex-wrap: wrap; gap: 8px 16px; justify-content: space-between; font-size: 14px; }
+  @keyframes timbul { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
+  @keyframes awan { from { transform: translateX(-260px); } to { transform: translateX(1460px); } }
+  @keyframes kereta-kanan { from { transform: translateX(-80px); } to { transform: translateX(1300px); } }
+  @keyframes kereta-kiri { from { transform: translateX(1300px); } to { transform: translateX(-80px); } }
+  @keyframes ombak { from { transform: translateX(0); } to { transform: translateX(-200px); } }
+  @keyframes kelip { 0%, 100% { opacity: .25; } 50% { opacity: .95; } }
+  @keyframes denyut { 0%, 100% { opacity: .35; transform: scale(1); } 50% { opacity: .6; transform: scale(1.08); } }
+  @keyframes burung { from { transform: translate(-60px, 0); } to { transform: translate(1300px, -60px); } }
+  @keyframes kapal { from { transform: translateX(1250px); } to { transform: translateX(-200px); } }
+  .pemandangan .awan { animation: awan linear infinite; }
+  .pemandangan .kr { animation: kereta-kanan linear infinite; }
+  .pemandangan .kl { animation: kereta-kiri linear infinite; }
+  .pemandangan .ombak { animation: ombak linear infinite; }
+  .pemandangan .lampu { animation: kelip ease-in-out infinite; }
+  .pemandangan .cahaya-matahari { transform-origin: 980px 440px; animation: denyut 6s ease-in-out infinite; }
+  .pemandangan .burung { animation: burung linear infinite; }
+  .pemandangan .kapal { animation: kapal linear infinite; }
+  @media (prefers-reduced-motion: reduce) {
+    .pemandangan *, .lm-hero * { animation: none !important; }
+  }
+
+  /* ---------- Lain-lain ---------- */
+  #toast { position: fixed; bottom: 90px; right: 16px; left: 16px; display: flex; flex-direction: column; gap: 8px; align-items: flex-end; z-index: 60; pointer-events: none; }
+  #toast div { background: var(--navy); color: #fff; padding: 11px 16px; border-radius: var(--r-kecil); max-width: 480px; box-shadow: var(--bayang-timbul); pointer-events: auto; border-left: 4px solid var(--kuning); }
+  #toast div.ralat { background: var(--sekat); border-left-color: #fff; }
+  .notis-privasi { max-width: 1200px; margin: 0 auto 32px; padding: 0 16px; font-size: 12px; color: var(--teks-3); }
+  footer.kaki { text-align: center; font-size: 12px; color: var(--teks-3); padding: 0 16px 24px; }
+
+  @media (max-width: 960px) {
+    .susun-editor, .dua-lajur { grid-template-columns: minmax(0, 1fr); }
+    .ringkasan { position: static; }
+    .kad-perjalanan .medan-jalan { grid-template-columns: 1fr 1fr; }
+    .kad-perjalanan .medan-jalan .tarikh-jalan { grid-column: 1 / -1; }
+    .lm { grid-template-columns: 1fr; }
+    .lm-hero { min-height: 470px; }
+    .lm-hero .tindih { padding: 22px 20px 70px; background: linear-gradient(180deg, rgba(6, 26, 51, .92) 0%, rgba(6, 26, 51, .82) 70%, rgba(6, 26, 51, 0) 100%); max-width: none; }
+    .lm-hero .kerajaan { margin-top: 12px; font-size: 11px; }
+    .lm-hero .jabatan { font-size: 14px; }
+    .lm-hero h1 { font-size: 24px; }
+    .lm-hero .jata-besar { width: 54px; }
+    .lm-hero .langkah { display: none; }
+    .lm-panel { border-left: 0; border-top: 4px solid var(--kuning); padding: 20px 16px 32px; justify-content: flex-start; }
+    .jenama img { height: 38px; }
+    .jenama .nama-sistem { font-size: 14px; }
+    details.bahagian > summary { grid-template-columns: auto 1fr auto; padding: 14px; }
+    details.bahagian > summary .anak-panah { display: none; }
+  }
+  @media print { .bar-tindakan, nav.tab, header.atas { display: none; } }
 </style>
 </head>
 <body>
@@ -803,6 +945,9 @@ function importBorang(buku) {
 <script>
 const S = { token: null, boot: null, tab: 'tuntutan' };
 
+// Jata Negeri Pulau Pinang (latar telus)
+const JATA = 'data:image/png;base64,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';
+
 // ------------------------------------------------------------ Utiliti DOM
 
 function el(tag, props, ...anak) {
@@ -917,30 +1062,143 @@ const notisPrivasi = () => el('p', { class: 'notis-privasi' },
   'menyediakan borang tuntutan perjalanan WP1.4. Data disimpan dalam Google Sheet JHEAIPP yang tidak dikongsi, hanya boleh dilihat oleh anda dan admin sistem, ',
   'dan disimpan mengikut tempoh simpanan rekod kewangan jabatan. Hubungi admin untuk semak atau padam data anda.');
 
+
+// ------------------------------------------------------------ Ilustrasi Pulau Pinang (SVG, kandungan tetap)
+
+/** KOMTAR, Bukit Bendera, Jambatan Pulau Pinang, feri dan laut. Dijana sekali; tiada data pengguna. */
+function pemandanganSvg() {
+  const r = (benih, maks) => { const x = Math.sin(benih * 12.9898 + 78.233) * 43758.5453; return (x - Math.floor(x)) * maks; }; // pseudo-rawak tetap 0..maks
+  let bintang = '', bangunan = '', lampu = '', kabel = '', tiang = '', kereta = '', ombak = '';
+  for (let i = 0; i < 40; i++) {
+    bintang += `<circle class="lampu" cx="${r(i + 1, 1200).toFixed(0)}" cy="${(10 + r(i + 51, 260)).toFixed(0)}" r="${(r(i + 9, 1.1) + .5).toFixed(1)}" fill="#fff" style="animation-duration:${(2 + r(i, 4)).toFixed(1)}s;animation-delay:${r(i + 3, 3).toFixed(1)}s"/>`;
+  }
+  // Bangunan bandar George Town (kiri dan kanan KOMTAR)
+  const blok = [[90, 60, 120], [156, 44, 88], [206, 70, 150], [470, 58, 130], [534, 46, 95], [585, 70, 175], [660, 52, 110], [-160, 60, 100], [-96, 54, 140], [-30, 46, 92]];
+  blok.forEach(([x, w, h], i) => {
+    const y = 560 - h;
+    bangunan += `<rect x="${x}" y="${y}" width="${w}" height="${h}" fill="${i % 2 ? '#0f3159' : '#123a68'}"/>`;
+    for (let yy = y + 12; yy < 548; yy += 16) for (let xx = x + 8; xx < x + w - 8; xx += 14) {
+      if (r(xx * 3 + yy, 1) > .55) lampu += `<rect class="lampu" x="${xx}" y="${yy}" width="6" height="7" fill="#f9db00" style="animation-duration:${(3 + r(xx + yy, 5)).toFixed(1)}s;animation-delay:${r(xx, 4).toFixed(1)}s"/>`;
+    }
+  });
+  // Jambatan: dua menara berbentuk A (seperti dalam jata), kabel kipas, tiang
+  const dekY = (x) => 616 - 30 * Math.sin(Math.PI * Math.min(Math.max((x + 20) / 1240, 0), 1));
+  [650, 930].forEach((px) => {
+    const atas = 452, kaki = dekY(px) + 34;
+    tiang += `<path d="M${px - 24} ${kaki} L${px - 5} ${atas} L${px + 5} ${atas} L${px + 24} ${kaki}" fill="none" stroke="#eef3f8" stroke-width="7" stroke-linejoin="round"/>
+      <line x1="${px - 15}" y1="${dekY(px) + 8}" x2="${px + 15}" y2="${dekY(px) + 8}" stroke="#eef3f8" stroke-width="5"/>
+      <circle class="lampu" cx="${px}" cy="${atas - 6}" r="3.5" fill="#ff5a4f" style="animation-duration:1.6s"/>`;
+    for (let k = 1; k <= 7; k++) {
+      [-1, 1].forEach((arah) => { const x = px + arah * k * 17; kabel += `<line x1="${px}" y1="${atas + 8 + k * 3}" x2="${x}" y2="${dekY(x) - 3}" stroke="#dfe7f0" stroke-width="1.3" opacity=".9"/>`; });
+    }
+  });
+  for (let x = 20; x < 1200; x += 74) tiang += `<rect x="${x - 4}" y="${dekY(x) + 4}" width="8" height="${642 - dekY(x)}" fill="#7f97b2"/>`;
+  // Kereta: lorong ke kanan (atas) dan ke kiri (bawah)
+  const warna = ['#ffffff', '#f9db00', '#9cc3ea', '#ff8a65', '#ffffff'];
+  for (let i = 0; i < 6; i++) {
+    const kanan = i % 2 === 0, y = kanan ? 589 : 597, dur = 14 + r(i, 10), tunda = -r(i + 7, dur);
+    kereta += `<g class="${kanan ? 'kr' : 'kl'}" style="animation-duration:${dur.toFixed(1)}s;animation-delay:${tunda.toFixed(1)}s">
+      <rect x="0" y="${y}" width="22" height="7" rx="2.5" fill="${warna[i % warna.length]}"/>
+      <circle cx="${kanan ? 22 : 0}" cy="${y + 4}" r="2" fill="#fff6a8"/></g>`;
+  }
+  // Ombak: corak biru-putih seperti jata, berulang setiap 200px
+  const garis = (y) => { let d = `M0 ${y}`; for (let x = 0; x < 2800; x += 100) d += ` q50 -12 100 0`; return d; };
+  [[662, .55, 9], [690, .4, 13], [718, .5, 7], [744, .35, 11]].forEach(([y, op, dur]) => {
+    ombak += `<g class="ombak" style="animation-duration:${dur}s"><path d="${garis(y)}" fill="none" stroke="#ffffff" stroke-width="4" stroke-linecap="round" opacity="${op}"/></g>`;
+  });
+  const svg = `<svg class="pemandangan" viewBox="0 0 1200 760" preserveAspectRatio="xMidYMax slice" aria-hidden="true" focusable="false">
+  <defs>
+    <linearGradient id="langit" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#061a33"/><stop offset=".42" stop-color="#0b3466"/><stop offset=".68" stop-color="#2c6cb0"/><stop offset=".86" stop-color="#e9b95a"/><stop offset="1" stop-color="#f6d27a"/>
+    </linearGradient>
+    <linearGradient id="laut" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#0a56b8"/><stop offset="1" stop-color="#03295c"/></linearGradient>
+    <radialGradient id="matahari"><stop offset="0" stop-color="#fff3a0"/><stop offset=".55" stop-color="#f9db00"/><stop offset="1" stop-color="#f9db00" stop-opacity="0"/></radialGradient>
+    <linearGradient id="komtar" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#eef2f6"/><stop offset=".45" stop-color="#c9d5e2"/><stop offset="1" stop-color="#7f95ae"/></linearGradient>
+    <pattern id="lantai" width="6" height="9" patternUnits="userSpaceOnUse"><rect width="6" height="2" fill="#5b7390"/></pattern>
+    <linearGradient id="teduh" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#061a33" stop-opacity=".88"/><stop offset=".55" stop-color="#061a33" stop-opacity=".25"/><stop offset="1" stop-color="#061a33" stop-opacity="0"/></linearGradient>
+  </defs>
+  <rect width="1200" height="760" fill="url(#langit)"/>
+  ${bintang}
+  <circle class="cahaya-matahari" cx="980" cy="440" r="150" fill="url(#matahari)" opacity=".45"/>
+  <circle cx="980" cy="440" r="58" fill="#f9db00"/>
+  <g class="awan" style="animation-duration:90s;animation-delay:-20s" fill="#fff" opacity=".35"><ellipse cx="0" cy="150" rx="80" ry="18"/><ellipse cx="40" cy="138" rx="50" ry="18"/></g>
+  <g class="awan" style="animation-duration:120s;animation-delay:-70s" fill="#fff" opacity=".25"><ellipse cx="0" cy="260" rx="110" ry="20"/><ellipse cx="-40" cy="248" rx="60" ry="16"/></g>
+  <g class="awan" style="animation-duration:100s;animation-delay:-45s" fill="#fff" opacity=".3"><ellipse cx="0" cy="340" rx="70" ry="14"/></g>
+  <path d="M0 470 C120 400 230 350 340 372 C440 392 520 318 640 334 C760 350 850 418 1000 404 C1100 396 1160 424 1200 432 L1200 600 L0 600 Z" fill="#1f4f82" opacity=".75"/>
+  <path d="M0 508 C150 470 260 452 380 470 C520 492 620 446 760 458 C900 470 1040 500 1200 486 L1200 600 L0 600 Z" fill="#163f6c"/>
+  <line x1="640" y1="334" x2="640" y2="306" stroke="#163f6c" stroke-width="3"/><circle class="lampu" cx="640" cy="304" r="3" fill="#ff5a4f" style="animation-duration:2s"/>
+  <g transform="translate(430 0)">
+  ${bangunan}${lampu}
+  <!-- KOMTAR -->
+  <path d="M398 560 A38 38 0 0 1 474 560 Z" fill="#cfdae6"/><path d="M405 548 L467 548 M412 536 L460 536 M424 526 L448 526 M436 522 L436 560 M418 530 L410 560 M454 530 L462 560" stroke="#8fa6bf" stroke-width="1.5" fill="none"/>
+  <rect x="246" y="514" width="214" height="46" fill="#8ea5be"/><rect x="246" y="514" width="214" height="46" fill="url(#lantai)" opacity=".35"/>
+  <rect x="300" y="176" width="72" height="340" fill="url(#komtar)"/>
+  <rect x="300" y="176" width="72" height="340" fill="url(#lantai)" opacity=".28"/>
+  <line x1="324" y1="176" x2="324" y2="516" stroke="#ffffff" stroke-opacity=".5"/><line x1="348" y1="176" x2="348" y2="516" stroke="#5b7390" stroke-opacity=".4"/>
+  <rect x="290" y="150" width="92" height="26" fill="#e6edf4"/>
+  <rect x="282" y="146" width="108" height="6" rx="3" fill="#f9db00"/>
+  <rect x="306" y="118" width="60" height="30" fill="#9cc3ea" opacity=".95"/><rect x="306" y="118" width="60" height="30" fill="url(#lantai)" opacity=".25"/>
+  <line x1="336" y1="118" x2="336" y2="78" stroke="#dfe7f0" stroke-width="3"/><circle class="lampu" cx="336" cy="76" r="4" fill="#ff5a4f" style="animation-duration:1.4s"/>
+  </g>
+  <!-- Laut -->
+  <rect x="0" y="600" width="1200" height="160" fill="url(#laut)"/>
+  <rect x="0" y="600" width="1200" height="6" fill="#f6d27a" opacity=".35"/>
+  ${ombak}
+  <g class="kapal" style="animation-duration:60s;animation-delay:-25s">
+    <path d="M0 676 L90 676 L80 692 L10 692 Z" fill="#f4f6f9"/><rect x="18" y="660" width="54" height="16" fill="#f9db00"/><rect x="26" y="652" width="34" height="9" fill="#ffffff"/>
+    <rect x="24" y="664" width="6" height="5" fill="#044caa"/><rect x="36" y="664" width="6" height="5" fill="#044caa"/><rect x="48" y="664" width="6" height="5" fill="#044caa"/><rect x="60" y="664" width="6" height="5" fill="#044caa"/>
+  </g>
+  <!-- Jambatan Pulau Pinang -->
+  ${tiang}${kabel}
+  <path d="M-20 616 Q600 556 1220 616" fill="none" stroke="#3d5e83" stroke-width="12"/>
+  <path d="M-20 612 Q600 552 1220 612" fill="none" stroke="#eef3f8" stroke-width="6"/>
+  ${kereta}
+  <g class="burung" style="animation-duration:38s;animation-delay:-8s" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round"><path d="M0 230 q6 -6 12 0 q6 -6 12 0"/><path d="M30 214 q5 -5 10 0 q5 -5 10 0"/></g>
+  <g class="burung" style="animation-duration:52s;animation-delay:-30s" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" opacity=".8"><path d="M0 300 q6 -6 12 0 q6 -6 12 0"/></g>
+  <rect width="1200" height="760" fill="url(#teduh)"/>
+</svg>`;
+  const div = document.createElement('div');
+  div.innerHTML = svg; // kandungan tetap yang dijana kod sendiri, tiada input pengguna
+  return div.firstElementChild;
+}
+
 // ------------------------------------------------------------ Log masuk / daftar
 
 async function paparLogMasuk(mesej, mod) {
   mod = mod || 'masuk';
   const app = kosongkan(document.getElementById('app'));
   const kad = el('div', { class: 'kad' });
-  letak(app, el('div', { class: 'log-masuk' }, kad, notisPrivasi()));
+  const hero = el('section', { class: 'lm-hero' },
+    el('div', { class: 'tindih' },
+      el('img', { class: 'jata-besar', src: JATA, alt: 'Jata Negeri Pulau Pinang' }),
+      el('div', { class: 'kerajaan' }, 'Kerajaan Negeri Pulau Pinang'),
+      el('h1', null, 'Sistem Tuntutan Elaun Perjalanan'),
+      el('div', { class: 'jabatan' }, 'Jabatan Hal Ehwal Agama Islam Negeri Pulau Pinang'),
+      el('div', { class: 'langkah' },
+        el('div', null, el('b', null, '1'), 'Daftar dengan emel rasmi'),
+        el('div', null, el('b', null, '2'), 'Isi perjalanan bulanan'),
+        el('div', null, el('b', null, '3'), 'Cetak borang WP1.4'))));
+  hero.prepend(pemandanganSvg());
+  letak(app, el('div', { class: 'lm' }, hero,
+    el('section', { class: 'lm-panel' }, kad, notisPrivasi(), el('footer', { class: 'kaki', style: 'padding:12px 0 0;text-align:left' }, 'Borang Tuntutan Elaun Perjalanan Dalam Negeri WP1.4 (Lampiran D)'))));
   let domain = 'penang.gov.my';
   jalan('apiDomain').then((d) => { domain = d; const b = document.getElementById('domain'); if (b) b.textContent = '@' + d.split(',').map((x) => x.trim()).join(' / @'); }).catch(() => {});
   const emel = el('input', { type: 'email', autocomplete: 'username', placeholder: 'nama@penang.gov.my' });
   const kata = el('input', { type: 'password', autocomplete: mod === 'masuk' ? 'current-password' : 'new-password' });
   const tajuk = { masuk: 'Log masuk', daftar: 'Daftar akaun', sahkan: 'Sahkan emel', lupa: 'Lupa kata laluan', setsemula: 'Set semula kata laluan' }[mod];
-  letak(kad, el('h2', null, 'Tuntutan Perjalanan (TNT) WP1.4'), el('div', { class: 'bantuan' }, 'Jabatan Hal Ehwal Agama Islam Negeri Pulau Pinang'), el('h3', null, tajuk));
+  const sub = { masuk: 'Masuk dengan emel rasmi dan kata laluan anda.', daftar: 'Sekali sahaja. Selepas itu profil anda mengisi borang secara automatik.',
+    sahkan: 'Kami telah menghantar kod 6 digit ke emel anda.', lupa: 'Kami akan hantar kod untuk set semula kata laluan.', setsemula: 'Masukkan kod dari emel dan kata laluan baharu.' }[mod];
+  letak(kad, el('h2', null, tajuk), el('div', { class: 'bantuan' }, sub));
   if (mesej) letak(kad, el('div', { class: 'notis info' }, mesej));
 
   if (mod === 'masuk') {
-    const btn = el('button', { class: 'btn', type: 'submit' }, 'Log masuk');
+    const btn = el('button', { class: 'btn besar', type: 'submit' }, 'Log masuk');
     const f = el('form', { onsubmit: (e) => { e.preventDefault(); tindakan(btn, async () => {
       const r = await jalan('apiLogMasuk', emel.value, kata.value); masukSesi(r);
     }); } }, medan('Emel', emel), el('p'), medan('Kata laluan', kata), el('p'), btn);
-    letak(kad, f, el('div', { class: 'kumpul' },
-      el('button', { class: 'pautan', onclick: () => paparLogMasuk('', 'daftar') }, 'Daftar akaun baharu'),
-      el('span', { class: 'bantuan' }, '·'),
-      el('button', { class: 'pautan', onclick: () => paparLogMasuk('', 'lupa') }, 'Lupa kata laluan')));
+    letak(kad, f, el('div', { class: 'pautan-bawah' },
+      el('span', null, 'Pengguna baharu? ', el('button', { class: 'pautan', onclick: () => paparLogMasuk('', 'daftar') }, 'Daftar akaun')),
+      el('button', { class: 'pautan', onclick: () => paparLogMasuk('', 'lupa') }, 'Lupa kata laluan?')));
   } else if (mod === 'daftar') {
     const nama = el('input', { type: 'text', autocomplete: 'name' });
     const kata2 = el('input', { type: 'password', autocomplete: 'new-password' });
@@ -999,14 +1257,18 @@ async function mula() {
 function paparRangka() {
   const p = S.boot.pengguna;
   const app = kosongkan(document.getElementById('app'));
-  const tabs = [['tuntutan', 'Tuntutan saya'], ['profil', 'Profil'], ['akaun', 'Akaun']];
-  if (p.role === 'admin') tabs.push(['admin', 'Admin']);
-  const nav = el('nav', { class: 'tab' }, tabs.map(([k, l]) => el('button', { class: S.tab === k ? 'aktif' : '', onclick: () => { S.tab = k; paparRangka(); } }, l)));
-  S.isi = el('main');
-  letak(app, el('header', { class: 'atas' },
-    el('div', null, el('h1', null, 'Tuntutan Perjalanan (TNT) WP1.4'), el('div', { class: 'kecil' }, 'JHEAIPP')),
-    el('div', { class: 'kumpul' }, el('span', { class: 'kecil' }, p.nama + (p.role === 'admin' ? ' (admin)' : '')), el('button', { onclick: logKeluar }, 'Log keluar'))),
-    nav, S.isi, notisPrivasi());
+  const tabs = [['tuntutan', 'Tuntutan saya'], ['profil', 'Profil pegawai'], ['akaun', 'Akaun']];
+  if (p.role === 'admin') tabs.push(['admin', 'Pentadbir']);
+  const nav = el('nav', { class: 'tab', 'aria-label': 'Menu utama' }, el('div', { class: 'dalam' },
+    tabs.map(([k, l]) => el('button', { class: S.tab === k ? 'aktif' : '', 'aria-current': S.tab === k ? 'page' : null, onclick: () => { S.tab = k; paparRangka(); } }, l))));
+  const inisial = (p.nama || '?').split(/\s+/).filter((w) => !/^(BIN|BINTI|B\.|BT\.)$/i.test(w)).slice(0, 2).map((w) => w[0]).join('').toUpperCase();
+  S.isi = el('main', { id: 'kandungan' });
+  letak(app, el('header', { class: 'atas' }, el('div', { class: 'dalam' },
+      el('div', { class: 'jenama' }, el('img', { src: JATA, alt: 'Jata Negeri Pulau Pinang' }),
+        el('div', null, el('p', { class: 'nama-sistem' }, 'Sistem Tuntutan Elaun Perjalanan'), el('div', { class: 'nama-jabatan' }, 'Jabatan Hal Ehwal Agama Islam Negeri Pulau Pinang'))),
+      el('div', { class: 'pengguna' }, el('span', { class: 'avatar', 'aria-hidden': 'true' }, inisial),
+        el('span', null, p.nama + (p.role === 'admin' ? ' · Pentadbir' : '')), el('button', { onclick: logKeluar }, 'Log keluar')))),
+    el('div', { class: 'jalur-bendera' }), nav, S.isi, notisPrivasi());
   ({ tuntutan: viewTuntutan, profil: viewProfil, akaun: viewAkaun, admin: viewAdmin })[S.tab]();
 }
 
@@ -1036,7 +1298,8 @@ function viewProfil() {
     S.boot.profil = await api('apiSimpanProfil', prof);
     beritahu('Profil disimpan. Tuntutan baharu akan guna maklumat ini.');
   });
-  letak(S.isi, el('div', { class: 'kad' }, el('h2', null, 'Profil pegawai'),
+  letak(S.isi, el('div', { class: 'tajuk-halaman' }, el('div', null, el('h1', null, 'Profil pegawai'), el('p', null, 'Maklumat ini dicetak di Muka 1 setiap borang tuntutan.'))),
+    el('div', { class: 'kad' }, el('h2', null, 'Maklumat pegawai'),
     el('p', { class: 'bantuan' }, 'Isi sekali sahaja. Maklumat ini disalin ke setiap tuntutan baharu (Muka 1 borang). Tuntutan lama tidak berubah bila profil dikemaskini.'),
     borangPegawai(prof), el('p'), btn));
 }
@@ -1058,13 +1321,13 @@ function viewAkaun() {
 function viewTuntutan() {
   const senarai = S.boot.tuntutan;
   const bulan = el('input', { type: 'month', value: bulanIni() });
-  const sumber = el('select', null, el('option', { value: '' }, 'Kosong'),
+  const sumber = el('select', null, el('option', { value: '' }, 'Borang kosong'),
     senarai.map((t) => el('option', { value: t.id }, 'Salin perjalanan dari ' + t.label)));
-  const btnBaru = el('button', { class: 'btn' }, 'Mula tuntutan');
+  const btnBaru = el('button', { class: 'btn besar' }, 'Mula isi tuntutan');
   btnBaru.onclick = () => tindakan(btnBaru, async () => {
     if (!bulan.value) throw new Error('Pilih bulan.');
     const ada = senarai.find((t) => t.bulan === bulan.value);
-    if (ada) throw new Error('Tuntutan ' + ada.label + ' sudah ada. Klik "Buka" pada senarai.');
+    if (ada) throw new Error('Tuntutan ' + ada.label + ' sudah ada. Klik "Buka" pada senarai di bawah.');
     const d = dataBaru(bulan.value);
     if (sumber.value) {
       const lama = await api('apiBukaTuntutan', sumber.value);
@@ -1072,26 +1335,39 @@ function viewTuntutan() {
     }
     bukaEditor(null, d);
   });
-  const profilKosong = !S.boot.profil.nama || !S.boot.profil.ic;
-  letak(S.isi, 
-    profilKosong ? el('div', { class: 'notis amaran' }, 'Profil anda belum lengkap. ', el('button', { class: 'pautan', onclick: () => { S.tab = 'profil'; paparRangka(); } }, 'Isi profil dahulu'), ' supaya Muka 1 borang terisi.') : null,
-    el('div', { class: 'kad' }, el('h2', null, 'Tuntutan baharu'),
-      el('div', { class: 'grid' }, medan('Bulan tuntutan', bulan), medan('Mula dengan', sumber, 'Salin perjalanan rutin; tarikh dikosongkan.')),
-      el('p'), btnBaru),
-    kadImport(),
-    el('div', { class: 'kad' }, el('h2', null, 'Tuntutan saya'),
+  const prof = S.boot.profil;
+  const profilKosong = !prof.nama || !prof.ic || !prof.no_akaun;
+  const namaPendek = (S.boot.pengguna.nama || '').split(/\s+(BIN|BINTI)\s+/i)[0];
+  const jumlahTahun = senarai.filter((t) => t.bulan.slice(0, 4) === bulanIni().slice(0, 4)).reduce((a, t) => a + (Number(t.jumlah) || 0), 0);
+  letak(S.isi,
+    el('section', { class: 'salam' },
+      el('div', null, el('h1', null, 'Assalamualaikum, ' + namaPendek), el('p', null, 'Isi tuntutan perjalanan bulanan anda di sini. Sistem mengira elaun dan menyediakan borang WP1.4 untuk dicetak.')),
+      el('div', { style: 'text-align:right' },
+        el('div', { class: 'bantuan' }, 'Jumlah tuntutan ' + bulanIni().slice(0, 4)),
+        el('div', { class: 'angka', style: 'font-size:22px;font-weight:800;color:var(--navy)' }, rm(jumlahTahun)))),
+    profilKosong ? el('div', { class: 'notis amaran' }, el('b', null, 'Profil belum lengkap. '), 'Nama, no. kad pengenalan dan no. akaun bank dicetak di Muka 1 borang. ',
+      el('button', { class: 'pautan', onclick: () => { S.tab = 'profil'; paparRangka(); } }, 'Lengkapkan profil sekarang')) : null,
+    el('div', { class: 'dua-lajur' },
+      el('section', { class: 'kad' }, el('h2', null, 'Tuntutan baharu'),
+        el('ol', { class: 'langkah-mini' }, el('li', null, 'Pilih bulan'), el('li', null, 'Isi perjalanan'), el('li', null, 'Simpan dan cetak')),
+        el('div', { class: 'grid' }, medan('Bulan tuntutan', bulan), medan('Mula dengan', sumber, 'Untuk perjalanan rutin. Tarikh akan dikosongkan.')),
+        el('p'), btnBaru),
+      kadImport()),
+    el('section', { class: 'kad' }, el('div', { class: 'baris-alat', style: 'margin-bottom:8px' }, el('h2', null, 'Tuntutan saya'), el('span', { class: 'bantuan' }, senarai.length + ' tuntutan')),
       senarai.length ? el('div', { class: 'jadual-skrol' }, el('table', { class: 'data' },
-        el('thead', null, el('tr', null, el('th', null, 'Bulan'), el('th', { class: 'nombor' }, 'Jumlah'), el('th', null, 'Dikemaskini'), el('th', null, 'Dicetak'), el('th'))),
+        el('thead', null, el('tr', null, el('th', null, 'Bulan'), el('th', null, 'Status'), el('th', { class: 'nombor' }, 'Jumlah'), el('th', null, 'Kemaskini terakhir'), el('th', null, ''))),
         el('tbody', null, senarai.map((t) => {
           const bCetak = el('button', { class: 'btn kecil kedua' }, 'Cetak PDF');
           bCetak.onclick = () => cetak(bCetak, t.id);
           const bBuka = el('button', { class: 'btn kecil' }, 'Buka');
           bBuka.onclick = () => tindakan(bBuka, async () => { const r = await api('apiBukaTuntutan', t.id); bukaEditor(t.id, r.data); });
-          const bPadam = el('button', { class: 'btn kecil bahaya' }, 'Padam');
-          bPadam.onclick = () => { if (confirm('Padam tuntutan ' + t.label + '?')) tindakan(bPadam, async () => { S.boot.tuntutan = await api('apiPadamTuntutan', t.id); paparRangka(); }); };
-          return el('tr', null, el('td', null, t.label), el('td', { class: 'nombor' }, rm(t.jumlah)), el('td', null, t.dikemaskini_pada),
-            el('td', null, t.dicetak_pada || '-'), el('td', null, el('div', { class: 'kumpul' }, bBuka, bCetak, bPadam)));
-        })))) : el('p', { class: 'kosong' }, 'Belum ada tuntutan.')));
+          const bPadam = el('button', { class: 'btn kecil bahaya', 'aria-label': 'Padam tuntutan ' + t.label }, 'Padam');
+          bPadam.onclick = () => { if (confirm('Padam tuntutan ' + t.label + '? Tindakan ini tidak boleh dibatalkan.')) tindakan(bPadam, async () => { S.boot.tuntutan = await api('apiPadamTuntutan', t.id); paparRangka(); }); };
+          return el('tr', null, el('td', null, el('b', null, t.label)),
+            el('td', null, t.dicetak_pada ? el('span', { class: 'lencana ok', title: 'Dicetak ' + t.dicetak_pada }, 'Dicetak') : el('span', { class: 'lencana neutral' }, 'Draf')),
+            el('td', { class: 'nombor' }, el('b', null, rm(t.jumlah))), el('td', { class: 'bantuan' }, t.dikemaskini_pada),
+            el('td', null, el('div', { class: 'kumpul', style: 'justify-content:flex-end' }, bBuka, bCetak, bPadam)));
+        })))) : el('p', { class: 'kosong' }, 'Belum ada tuntutan. Pilih bulan di atas dan klik "Mula isi tuntutan".')));
 }
 
 // ------------------------------------------------------------ Import borang lama (.xlsx)
@@ -1125,7 +1401,7 @@ async function bacaXlsx(fail) {
 function kadImport() {
   const fail = el('input', { type: 'file', accept: '.xlsx' });
   const kemas = el('input', { type: 'checkbox', checked: !S.boot.profil.nama || !S.boot.profil.ic, style: 'width:auto' });
-  const btn = el('button', { class: 'btn kedua' }, 'Baca fail');
+  const btn = el('button', { class: 'btn kedua' }, 'Baca fail dan buka');
   btn.onclick = () => tindakan(btn, async () => {
     const f = fail.files[0];
     if (!f) throw new Error('Pilih fail .xlsx dahulu.');
@@ -1148,7 +1424,7 @@ function kadImport() {
     }
     bukaEditor(null, d, { tajuk: 'Diimport daripada ' + f.name + ' (' + r.format + '). Semak, kemudian klik Simpan.', nota: r.nota, jumlahFail: r.jumlahFail });
   });
-  return el('div', { class: 'kad' }, el('h2', null, 'Import borang lama (Excel)'),
+  return el('section', { class: 'kad' }, el('h2', null, 'Import borang lama (Excel)'),
     el('p', { class: 'bantuan' }, 'Pilih borang TNT yang pernah anda isi dalam Excel (format WP1.4 2026 atau borang 2024). ',
       'Fail dibaca dalam pelayar anda sahaja dan tidak dimuat naik. Hasilnya dibuka dalam editor untuk disemak sebelum disimpan.'),
     el('div', { class: 'grid' }, medan('Fail .xlsx', fail),
@@ -1188,69 +1464,85 @@ function lengkapkan(d) {
 
 // ------------------------------------------------------------ Editor tuntutan
 
+/** Bahagian bernombor yang boleh dibuka/tutup. nilai: elemen ringkasan di kepala (dikemas kini oleh kemaskiniRingkasan). */
+function bahagian(no, tajuk, sub, nilai, buka, ...isi) {
+  return el('details', { class: 'bahagian', open: buka ? true : null },
+    el('summary', null, el('span', { class: 'no', 'aria-hidden': 'true' }, String(no)),
+      el('span', null, el('div', { class: 'tajuk' }, tajuk), el('div', { class: 'sub' }, sub)),
+      nilai, el('span', { class: 'anak-panah', 'aria-hidden': 'true' })),
+    el('div', { class: 'isi-bahagian' }, ...isi));
+}
+
 function bukaEditor(id, data, info) {
   S.editor = { id: id, d: lengkapkan(salin(data)), berubah: !!info, info: info || null };
   kosongkan(S.isi);
   const d = S.editor.d;
-  const ringkasan = el('div', { class: 'kad ringkasan' });
+  const ringkasan = el('aside', { class: 'kad ringkasan', 'aria-label': 'Ringkasan tuntutan' });
+  const ui = { jumlahBar: el('b', { class: 'angka' }, 'RM0.00'), nilai: {} };
+  ['pegawai', 'jalan', 'A', 'B', 'awam', 'D', 'P'].forEach((k) => { ui.nilai[k] = el('span', { class: 'nilai' }); });
+  S.editor.ui = ui;
   const ubah = () => { S.editor.berubah = true; kemaskiniRingkasan(ringkasan); };
 
   const inp = (obj, k, jenis, extra) => el('input', Object.assign({ type: jenis || 'text', value: obj[k] === 0 ? '' : (obj[k] || ''),
     inputmode: jenis === 'number' ? 'decimal' : null, min: jenis === 'number' ? '0' : null, step: jenis === 'number' ? 'any' : null,
     oninput: (e) => { obj[k] = e.target.value; ubah(); } }, extra || {}));
+  const ada = (...v) => v.some((x) => Number(x) > 0 || (typeof x === 'string' && x.trim() && isNaN(Number(x))));
 
-  // Muka 1
+  // 1. Maklumat pegawai (Muka 1)
   const bulanInput = inp(d, 'bulan', 'month');
   const kadPegawai = el('div');
   const paparPegawai = () => letak(kosongkan(kadPegawai), borangPegawai(d.pegawai, ubah));
   paparPegawai();
-  const muka1 = el('div', { class: 'kad' }, el('h2', null, 'Muka 1: Maklumat pegawai'),
-    el('div', { class: 'grid' }, medan('Bagi bulan', bulanInput)),
-    el('h3', null, 'Maklumat pegawai (salinan profil)'),
-    el('div', { class: 'kumpul' }, el('button', { class: 'btn kecil kedua', onclick: () => {
+  const pegawaiLengkap = d.pegawai.nama && d.pegawai.ic && d.pegawai.no_akaun;
+  const b1 = bahagian(1, 'Bulan dan maklumat pegawai', 'Muka 1 borang. Diisi daripada profil anda.', ui.nilai.pegawai, !pegawaiLengkap || !d.bulan,
+    el('div', { class: 'grid', style: 'margin-top:14px' }, medan('Tuntutan bagi bulan', bulanInput)),
+    el('h3', null, 'Maklumat pegawai'),
+    el('div', { class: 'kumpul', style: 'margin-bottom:12px' }, el('button', { class: 'btn kecil kedua', type: 'button', onclick: () => {
       MEDAN_PROFIL.forEach(([k]) => { d.pegawai[k] = S.boot.profil[k] || ''; }); paparPegawai(); ubah();
-    } }, 'Guna profil terkini')), el('p'), kadPegawai,
-    S.boot.alamatPejabat ? el('p', { class: 'bantuan' }, 'Alamat pejabat: ' + S.boot.alamatPejabat) : el('div', { class: 'notis amaran' }, 'Alamat pejabat belum ditetapkan admin. Ruangan itu akan kosong dalam cetakan.'));
+    } }, 'Ambil semula dari profil terkini'), el('span', { class: 'bantuan' }, 'Perubahan di sini hanya untuk tuntutan ini.')),
+    kadPegawai,
+    S.boot.alamatPejabat ? el('p', { class: 'bantuan' }, 'Alamat pejabat dicetak: ' + S.boot.alamatPejabat) : el('div', { class: 'notis amaran' }, 'Alamat pejabat belum ditetapkan admin. Ruangan itu akan kosong dalam cetakan.'));
 
-  // Muka 2
-  const badanJalan = el('tbody');
+  // 2. Perjalanan (Muka 2), setiap perjalanan sebagai kad
+  const senaraiJalan = el('div');
   const paparJalan = () => {
-    kosongkan(badanJalan);
+    kosongkan(senaraiJalan);
     d.perjalanan.forEach((r, i) => {
-      badanJalan.append(el('tr', null,
-        el('td', null, inp(r, 'tarikh', 'date')),
-        el('td', null, inp(r, 'bertolak', 'time')),
-        el('td', null, inp(r, 'tiba', 'time')),
-        el('td', null, el('textarea', { value: r.butiran || '', placeholder: 'Dari ... ke ... Tujuan ...', oninput: (e) => { r.butiran = e.target.value; ubah(); } })),
-        el('td', null, inp(r, 'jarak', 'number', { style: 'width:90px' })),
-        el('td', null, el('select', { onchange: (e) => { r.kenderaan = e.target.value; ubah(); } },
-          [['KERETA', 'Kereta'], ['MOTOSIKAL', 'Motosikal'], ['TIADA', 'Tiada (awam)']].map(([v, l]) => el('option', { value: v, selected: (r.kenderaan || 'KERETA') === v }, l)))),
-        el('td', null, el('div', { class: 'kumpul' },
-          el('button', { class: 'btn kecil kedua', title: 'Salin baris (cth perjalanan pulang)', onclick: () => { d.perjalanan.splice(i + 1, 0, salin(r)); paparJalan(); ubah(); } }, 'Salin'),
-          el('button', { class: 'btn kecil bahaya', onclick: () => { d.perjalanan.splice(i, 1); paparJalan(); ubah(); } }, 'Buang')))));
+      const pilihKenderaan = el('select', { onchange: (e) => { r.kenderaan = e.target.value; ubah(); } },
+        [['KERETA', 'Kereta'], ['MOTOSIKAL', 'Motosikal'], ['TIADA', 'Tiada (awam / lain)']].map(([v, l]) => el('option', { value: v, selected: (r.kenderaan || 'KERETA') === v }, l)));
+      senaraiJalan.append(el('div', { class: 'kad-perjalanan' },
+        el('div', { class: 'kepala' }, el('b', null, 'Perjalanan ' + (i + 1)),
+          el('div', { class: 'kumpul' },
+            el('button', { class: 'btn kecil kedua', type: 'button', title: 'Salin perjalanan ini (cth untuk perjalanan pulang)', onclick: () => { d.perjalanan.splice(i + 1, 0, salin(r)); paparJalan(); ubah(); } }, 'Salin'),
+            el('button', { class: 'btn kecil bahaya', type: 'button', 'aria-label': 'Buang perjalanan ' + (i + 1), onclick: () => { d.perjalanan.splice(i, 1); paparJalan(); ubah(); } }, 'Buang'))),
+        el('div', { class: 'medan-jalan' },
+          el('label', { class: 'medan tarikh-jalan' }, 'Tarikh', inp(r, 'tarikh', 'date')),
+          medan('Bertolak', inp(r, 'bertolak', 'time')),
+          medan('Tiba', inp(r, 'tiba', 'time')),
+          medan('Kenderaan', pilihKenderaan),
+          medan('Jarak (km)', inp(r, 'jarak', 'number', { placeholder: '0' })),
+          medan('Butiran perjalanan', el('textarea', { value: r.butiran || '', rows: 2, placeholder: 'Contoh: Bertolak dari pejabat ke Masjid Negeri, Ayer Itam bagi mesyuarat pemantauan.', oninput: (e) => { r.butiran = e.target.value; ubah(); } }), null, true))));
     });
-    if (!d.perjalanan.length) badanJalan.append(el('tr', null, el('td', { colspan: '7', class: 'kosong' }, 'Belum ada perjalanan.')));
+    if (!d.perjalanan.length) senaraiJalan.append(el('p', { class: 'kosong' }, 'Belum ada perjalanan. Klik "Tambah perjalanan" untuk mula.'));
   };
   paparJalan();
   const tambahJalan = () => {
     const akhir = d.perjalanan[d.perjalanan.length - 1];
     d.perjalanan.push({ tarikh: akhir ? akhir.tarikh : '', bertolak: '', tiba: '', butiran: '', jarak: '', kenderaan: akhir ? akhir.kenderaan : 'KERETA' });
     paparJalan(); ubah();
+    const kad = senaraiJalan.lastElementChild; if (kad) { kad.scrollIntoView({ behavior: 'smooth', block: 'center' }); const t = kad.querySelector('input'); if (t) t.focus({ preventScroll: true }); }
   };
-  const muka2 = el('div', { class: 'kad' }, el('h2', null, 'Muka 2: Kenyataan tuntutan'),
-    el('p', { class: 'bantuan' }, 'Nyatakan lokasi bertolak, lokasi dituju dan tujuan. Jarak dijumlahkan ikut kenderaan untuk kiraan mileage (Bahagian C).'),
-    el('div', { class: 'jadual-skrol' }, el('table', { class: 'data perjalanan' },
-      el('thead', null, el('tr', null, ['Tarikh', 'Bertolak', 'Tiba', 'Butiran tuntutan', 'Jarak (km)', 'Kenderaan', ''].map((h) => el('th', null, h)))), badanJalan)),
-    el('p'), el('button', { class: 'btn kedua', onclick: tambahJalan }, '+ Tambah perjalanan'));
+  const b2 = bahagian(2, 'Kenyataan perjalanan', 'Muka 2. Nyatakan lokasi bertolak, lokasi dituju dan tujuan. Jarak dikira untuk mileage.', ui.nilai.jalan, true,
+    senaraiJalan, el('button', { class: 'btn kedua tambah-jalan', type: 'button', onclick: tambahJalan }, '+ Tambah perjalanan'));
 
-  // Kadar manual (elaun makan, harian, lojing): butang buka/tutup
+  // Kadar manual (elaun makan, harian, lojing)
   const km = d.kadar_manual;
   const adaManual = () => ['ELAUN_MAKAN', 'ELAUN_HARIAN', 'LOJING'].some((k) => Number(km[k]) > 0);
   const kadarAdmin = (kod) => { const h = kiraTuntutan(bersihkanData(Object.assign({}, d, { kadar_manual: {} })), S.boot.konteks); return h.kadar.nilai[kod]; };
   const petakManual = (kod, label) => medan(label, inp(km, kod, 'number', { placeholder: kadarAdmin(kod) ? 'Kadar admin: RM' + kadarAdmin(kod).toFixed(2) : 'Tiada kadar admin' }));
-  const panelManual = el('div', { class: 'kad', style: 'background:var(--utama-lembut);margin:12px 0 0' + (adaManual() ? '' : ';display:none') },
+  const panelManual = el('div', { class: 'notis info', style: 'margin:12px 0 0' + (adaManual() ? '' : ';display:none') },
     el('b', null, 'Kadar diisi sendiri'),
-    el('p', { class: 'bantuan' }, 'Isi hanya jika admin belum tetapkan kadar untuk gred anda, atau kadar anda berbeza. Kosongkan untuk guna kadar admin. Tuntutan akan ditanda "kadar diisi manual" untuk semakan.'),
+    el('p', { class: 'bantuan', style: 'margin:4px 0 10px' }, 'Isi hanya jika admin belum tetapkan kadar untuk gred anda, atau kadar anda berbeza. Kosongkan untuk guna kadar admin. Tuntutan akan ditanda "kadar diisi manual" untuk semakan.'),
     el('div', { class: 'grid' },
       petakManual('ELAUN_MAKAN', 'Elaun makan sehari (RM)'),
       petakManual('ELAUN_HARIAN', 'Elaun harian sehari (RM)'),
@@ -1260,50 +1552,54 @@ function bukaEditor(id, data, info) {
     const buka = panelManual.style.display === 'none';
     panelManual.style.display = buka ? '' : 'none';
     btnManual.textContent = buka ? 'Tutup kadar manual' : 'Isi kadar sendiri (manual)';
-    if (!buka) { km.ELAUN_MAKAN = km.ELAUN_HARIAN = km.LOJING = ''; panelManual.querySelectorAll('input').forEach((i) => { i.value = ''; }); ubah(); }
+    if (!buka) { km.ELAUN_MAKAN = km.ELAUN_HARIAN = km.LOJING = ''; panelManual.querySelectorAll('input').forEach((x) => { x.value = ''; }); ubah(); }
   };
 
-  // A
+  // 3. A: makan
   const m = d.makan;
-  const bahA = el('div', { class: 'kad' }, el('h2', null, 'A: Elaun makan / elaun harian (Semenanjung)'),
-    el('p', { class: 'bantuan' }, 'Kadar ikut gred anda, ditetapkan admin. Bahagian makan: sarapan 20%, tengah hari 40%, malam 40% daripada elaun makan.'),
-    el('div', { class: 'kumpul' }, btnManual), panelManual, el('p'),
+  const b3 = bahagian(3, 'Elaun makan dan elaun harian', 'Bahagian A. Untuk tugas rasmi luar pejabat. Kadar ikut gred anda.', ui.nilai.A, ada(m.hari_makan, m.hari_harian, m.sarapan, m.tengahari, m.malam) || adaManual(),
+    el('p', { class: 'bantuan', style: 'margin-top:14px' }, 'Isi elaun makan penuh ATAU bahagian makan (sarapan 20%, tengah hari 40%, malam 40%) mengikut kelayakan.'),
+    el('div', { class: 'kumpul' }, btnManual), panelManual,
+    el('h3', null, 'Bilangan hari'),
     el('div', { class: 'grid' },
-      medan('Elaun makan penuh (bil. hari)', inp(m, 'hari_makan', 'number')),
-      medan('Elaun harian (bil. hari)', inp(m, 'hari_harian', 'number')),
-      medan('Sarapan pagi (bil.)', inp(m, 'sarapan', 'number')),
-      medan('Makan tengah hari (bil.)', inp(m, 'tengahari', 'number')),
-      medan('Makan malam (bil.)', inp(m, 'malam', 'number'))));
+      medan('Elaun makan penuh (hari)', inp(m, 'hari_makan', 'number', { placeholder: '0' })),
+      medan('Elaun harian (hari)', inp(m, 'hari_harian', 'number', { placeholder: '0' }))),
+    el('h3', null, 'Bahagian makan (jika tidak penuh)'),
+    el('div', { class: 'grid' },
+      medan('Sarapan pagi (kali)', inp(m, 'sarapan', 'number', { placeholder: '0' })),
+      medan('Makan tengah hari (kali)', inp(m, 'tengahari', 'number', { placeholder: '0' })),
+      medan('Makan malam (kali)', inp(m, 'malam', 'number', { placeholder: '0' }))));
 
-  // B
-  const bahB = el('div', { class: 'kad' }, el('h2', null, 'B: Penginapan (Semenanjung)'),
-    el('h3', null, 'Bayaran sewa penginapan (hotel, ikut resit)'),
-    d.bsp.map((b, i) => el('div', { class: 'grid' }, medan('Hotel ' + (i + 1) + ': kadar semalam (RM)', inp(b, 'kadar', 'number')),
-      medan('Bil. hari', inp(b, 'hari', 'number')), medan('No. resit', inp(b, 'resit')))),
-    el('h3', null, 'Elaun lojing'),
-    el('div', { class: 'grid' }, medan('Bil. malam', inp(d.lojing, 'malam', 'number'))),
-    d.lojing.senarai.map((x, i) => el('div', { class: 'grid' }, medan('Tarikh lojing ' + (i + 1), inp(x, 'tarikh', 'text', { placeholder: 'cth 12/01/2026 - 13/01/2026' })),
+  // 4. B: penginapan
+  const b4 = bahagian(4, 'Penginapan', 'Bahagian B. Hotel (ikut resit) atau elaun lojing.', ui.nilai.B,
+    ada(d.lojing.malam) || d.bsp.some((b) => ada(b.kadar, b.hari)),
+    el('h3', null, 'Bayaran sewa hotel (ikut resit)'),
+    d.bsp.map((b, i) => el('div', { class: 'grid', style: 'margin-bottom:10px' }, medan('Hotel ' + (i + 1) + ': kadar semalam (RM)', inp(b, 'kadar', 'number', { placeholder: '0.00' })),
+      medan('Bilangan malam', inp(b, 'hari', 'number', { placeholder: '0' })), medan('No. resit', inp(b, 'resit')))),
+    el('h3', null, 'Elaun lojing (tanpa hotel)'),
+    el('div', { class: 'grid' }, medan('Bilangan malam', inp(d.lojing, 'malam', 'number', { placeholder: '0' }))),
+    d.lojing.senarai.map((x, i) => el('div', { class: 'grid', style: 'margin-top:10px' }, medan('Tarikh lojing ' + (i + 1), inp(x, 'tarikh', 'text', { placeholder: 'cth 12/01/2026 - 13/01/2026' })),
       medan('Alamat lojing ' + (i + 1), inp(x, 'alamat')))));
 
-  // C
-  const bahC = el('div', { class: 'kad' }, el('h2', null, 'C: Pengangkutan'),
-    el('p', { class: 'bantuan' }, 'Mileage dikira automatik daripada Muka 2.'),
-    el('h3', null, 'Tambang pengangkutan awam'),
-    JENIS_AWAM.map((j) => el('div', { class: 'grid' }, medan(j.label + ' (RM)', inp(d.awam[j.kod], 'rm', 'number')), medan('No. resit', inp(d.awam[j.kod], 'resit')))));
+  // 5. C: tambang awam (mileage dikira automatik)
+  const b5 = bahagian(5, 'Tambang pengangkutan awam', 'Bahagian C. Teksi, e-hailing, bas, kereta api, feri. Mileage kenderaan sendiri dikira automatik.', ui.nilai.awam,
+    JENIS_AWAM.some((j) => ada(d.awam[j.kod].rm)),
+    JENIS_AWAM.map((j) => el('div', { class: 'grid', style: 'margin-top:12px' }, medan(j.label + ' (RM)', inp(d.awam[j.kod], 'rm', 'number', { placeholder: '0.00' })), medan('No. resit', inp(d.awam[j.kod], 'resit')))));
 
-  // D
-  const bahD = el('div', { class: 'kad' }, el('h2', null, 'D: Belanja pelbagai'),
-    el('div', { class: 'grid' },
-      medan('Tol (RM)', inp(d.tol, 'rm', 'number')), medan('Rujukan tol', inp(d.tol, 'rujukan'), 'cth Penyata Touch\'n Go Jan 2026'),
-      medan('Tempat letak kereta (RM)', inp(d.parkir, 'rm', 'number')), medan('Rujukan parkir', inp(d.parkir, 'rujukan'))));
+  // 6. D: tol dan parkir
+  const b6 = bahagian(6, 'Tol dan tempat letak kereta', 'Bahagian D. Sertakan penyata Touch ’n Go atau resit.', ui.nilai.D, ada(d.tol.rm, d.parkir.rm),
+    el('div', { class: 'grid', style: 'margin-top:14px' },
+      medan('Tol (RM)', inp(d.tol, 'rm', 'number', { placeholder: '0.00' })), medan('Rujukan tol', inp(d.tol, 'rujukan', 'text', { placeholder: 'cth Penyata Touch ’n Go Jan 2026' })),
+      medan('Tempat letak kereta (RM)', inp(d.parkir, 'rm', 'number', { placeholder: '0.00' })), medan('Rujukan parkir', inp(d.parkir, 'rujukan'))));
 
-  // Pengakuan
-  const bahP = el('div', { class: 'kad' }, el('h2', null, 'Pengakuan dan pendahuluan'),
-    el('div', { class: 'grid' },
-      medan('(c) Perbelanjaan tanpa resit (RM)', inp(d.pengakuan, 'tanpa_resit', 'number')),
-      medan('(d) Resit bukan atas nama sendiri (RM)', inp(d.pengakuan, 'resit_bukan_nama', 'number')),
+  // 7. Pengakuan
+  const b7 = bahagian(7, 'Pengakuan dan pendahuluan', 'Pilihan. Muka 6 dan 7 borang.', ui.nilai.P,
+    ada(d.pengakuan.tanpa_resit, d.pengakuan.resit_bukan_nama, d.pendahuluan) || !!d.pengakuan.tarikh,
+    el('div', { class: 'grid', style: 'margin-top:14px' },
+      medan('(c) Perbelanjaan tanpa resit (RM)', inp(d.pengakuan, 'tanpa_resit', 'number', { placeholder: '0.00' })),
+      medan('(d) Resit bukan atas nama sendiri (RM)', inp(d.pengakuan, 'resit_bukan_nama', 'number', { placeholder: '0.00' })),
       medan('Tarikh pengakuan', inp(d.pengakuan, 'tarikh', 'date'), 'Kosongkan jika mahu tulis tangan.'),
-      medan('Pendahuluan diri diberi (RM)', inp(d, 'pendahuluan', 'number'), 'Jika ada. Muka 7.')));
+      medan('Pendahuluan diri diberi (RM)', inp(d, 'pendahuluan', 'number', { placeholder: '0.00' }), 'Jika ada.')));
 
   const simpan = async () => {
     const r = await api('apiSimpanTuntutan', S.editor.id, S.editor.d);
@@ -1312,12 +1608,12 @@ function bukaEditor(id, data, info) {
     return r;
   };
   const butangSimpan = () => {
-    const b = el('button', { class: 'btn' }, 'Simpan');
+    const b = el('button', { class: 'btn kedua', type: 'button' }, 'Simpan draf');
     b.onclick = () => tindakan(b, async () => { await simpan(); beritahu('Tuntutan disimpan.'); });
     return b;
   };
   const butangCetak = () => {
-    const b = el('button', { class: 'btn kedua' }, 'Simpan & cetak PDF');
+    const b = el('button', { class: 'btn', type: 'button' }, 'Simpan & cetak PDF');
     b.onclick = () => tindakan(b, async () => {
       b.textContent = 'Menjana PDF...';
       try { await simpan(); const r = await api('apiCetak', S.editor.id); muatTurun(r); beritahu('PDF sedia. Cetak pada kertas A4.'); }
@@ -1325,16 +1621,19 @@ function bukaEditor(id, data, info) {
     });
     return b;
   };
-  const kembali = el('button', { class: 'btn kedua', onclick: () => {
+  const kembali = el('button', { class: 'btn kedua', type: 'button', onclick: () => {
     if (S.editor.berubah && !confirm('Ada perubahan belum disimpan. Keluar juga?')) return;
     S.editor = null; S.tab = S.kembaliKe || 'tuntutan'; S.kembaliKe = null; paparRangka();
-  } }, '← Senarai');
+  } }, '← Kembali');
 
-  letak(S.isi, el('div', { class: 'baris-alat' }, el('div', { class: 'kumpul' }, kembali, el('h2', null, 'Tuntutan ' + labelBulan(d.bulan))), el('div', { class: 'kumpul' }, butangSimpan(), butangCetak())),
+  letak(S.isi,
+    el('div', { class: 'tajuk-halaman' },
+      el('div', null, el('h1', null, 'Tuntutan ' + labelBulan(d.bulan)), el('p', null, 'Lengkapkan langkah 1 dan 2. Langkah lain hanya jika berkaitan. Jumlah dikira terus.')),
+      kembali),
+    info ? el('div', { class: 'notis info' }, el('b', null, info.tajuk), info.nota.length ? el('ul', null, info.nota.map((n) => el('li', null, n))) : null) : null,
     el('div', { class: 'susun-editor' },
-      el('div', null, info ? el('div', { class: 'notis info' }, el('b', null, info.tajuk),
-        info.nota.length ? el('ul', null, info.nota.map((n) => el('li', null, n))) : null) : null,
-        muka1, muka2, bahA, bahB, bahC, bahD, bahP, el('div', { class: 'kumpul' }, butangSimpan(), butangCetak())),
+      el('div', null, b1, b2, b3, b4, b5, b6, b7,
+        el('div', { class: 'bar-tindakan' }, el('div', { class: 'jumlah-bar' }, 'Jumlah tuntutan', ui.jumlahBar), el('div', { class: 'kumpul' }, butangSimpan(), butangCetak()))),
       ringkasan));
   kemaskiniRingkasan(ringkasan);
 }
@@ -1343,24 +1642,39 @@ function kemaskiniRingkasan(kad) {
   const d = bersihkanData(S.editor.d);
   const h = kiraTuntutan(d, S.boot.konteks);
   const ml = h.C.mileage;
+  const ui = S.editor.ui;
+  if (ui) {
+    const set = (k, teksNilai, sifar) => { ui.nilai[k].textContent = teksNilai; ui.nilai[k].className = 'nilai' + (sifar ? ' sifar' : ''); };
+    set('pegawai', d.bulan ? labelBulan(d.bulan) : 'Pilih bulan', !d.bulan);
+    const bil = d.perjalanan.length;
+    set('jalan', bil ? bil + ' perjalanan · ' + h.km.jumlah + ' km' : 'Belum diisi', !bil);
+    set('A', h.A.jumlah ? rm(h.A.jumlah) : 'Tiada', !h.A.jumlah);
+    set('B', h.B.jumlah ? rm(h.B.jumlah) : 'Tiada', !h.B.jumlah);
+    set('awam', h.C.awam ? rm(h.C.awam) : 'Tiada', !h.C.awam);
+    set('D', h.D.jumlah ? rm(h.D.jumlah) : 'Tiada', !h.D.jumlah);
+    const adaP = d.pengakuan.tanpa_resit || d.pengakuan.resit_bukan_nama || d.pendahuluan || d.pengakuan.tarikh;
+    set('P', adaP ? 'Diisi' : 'Pilihan', !adaP);
+    ui.jumlahBar.textContent = rm(h.jumlah);
+  }
   const baris = (l, v, kelas) => el('tr', { class: kelas || '' }, el('td', null, l), el('td', null, rm(v)));
   const k = h.kadar;
   letak(kosongkan(kad), el('h2', null, 'Ringkasan'),
     el('table', null,
-      baris('A: Makan minum', h.A.jumlah), baris('B: Penginapan', h.B.jumlah), baris('C: Pengangkutan', h.C.jumlah), baris('D: Lain-lain', h.D.jumlah),
-      baris('Jumlah keseluruhan', h.jumlah, 'jumlah')),
-    el('h3', null, 'Mileage'),
-    el('div', { class: 'bantuan' }, 'Kereta ' + h.km.kereta + ' km: ' + ml.kereta_1.km + ' km × RM' + ml.kereta_1.kadar.toFixed(2) + (ml.kereta_2.km ? ' + ' + ml.kereta_2.km + ' km × RM' + ml.kereta_2.kadar.toFixed(2) : '')),
+      baris('Mileage kenderaan', ml.jumlah),
+      baris('A: Makan dan elaun harian', h.A.jumlah), baris('B: Penginapan', h.B.jumlah), baris('C: Tambang awam', h.C.awam), baris('D: Tol dan parkir', h.D.jumlah),
+      baris('Jumlah tuntutan', h.jumlah, 'jumlah')),
+    h.km.kereta || h.km.moto ? el('h3', null, 'Kiraan mileage') : null,
+    h.km.kereta ? el('div', { class: 'bantuan' }, 'Kereta ' + h.km.kereta + ' km: ' + ml.kereta_1.km + ' km × RM' + ml.kereta_1.kadar.toFixed(2) + (ml.kereta_2.km ? ' + ' + ml.kereta_2.km + ' km × RM' + ml.kereta_2.kadar.toFixed(2) : '')) : null,
     h.km.moto ? el('div', { class: 'bantuan' }, 'Motosikal ' + h.km.moto + ' km: ' + ml.moto_1.km + ' km × RM' + ml.moto_1.kadar.toFixed(2) + (ml.moto_2.km ? ' + ' + ml.moto_2.km + ' km × RM' + ml.moto_2.kadar.toFixed(2) : '')) : null,
     el('h3', null, 'Kadar digunakan'),
-    el('div', { class: 'bantuan' }, 'Berkuat kuasa pada ' + formatTarikh(k.tarikh) + (k.kumpulan ? '. Kumpulan gred: ' + k.kumpulan : '. Gred tiada kumpulan.')),
-    el('div', { class: 'bantuan' }, 'Elaun makan ' + rm(k.nilai.ELAUN_MAKAN) + ', harian ' + rm(k.nilai.ELAUN_HARIAN) + ', lojing ' + rm(k.nilai.LOJING)),
-    k.manual && k.manual.length ? el('span', { class: 'lencana amaran' }, 'Kadar diisi manual') : null,
-    S.editor.info && S.editor.info.jumlahFail ? el('div', { class: 'notis ' + (Math.abs(S.editor.info.jumlahFail - h.jumlah) < 0.005 ? 'info' : 'amaran') },
+    el('div', { class: 'bantuan' }, 'Berkuat kuasa ' + formatTarikh(k.tarikh) + (k.kumpulan ? ' · Kumpulan ' + k.kumpulan : ' · Gred belum ada kumpulan')),
+    el('div', { class: 'bantuan' }, 'Makan ' + rm(k.nilai.ELAUN_MAKAN) + ' · Harian ' + rm(k.nilai.ELAUN_HARIAN) + ' · Lojing ' + rm(k.nilai.LOJING)),
+    k.manual && k.manual.length ? el('p', null, el('span', { class: 'lencana amaran' }, 'Kadar diisi manual')) : null,
+    S.editor.info && S.editor.info.jumlahFail ? el('div', { class: 'notis ' + (Math.abs(S.editor.info.jumlahFail - h.jumlah) < 0.005 ? 'info' : 'amaran'), style: 'margin-top:12px' },
       'Jumlah dalam fail asal: ' + rm(S.editor.info.jumlahFail) + (Math.abs(S.editor.info.jumlahFail - h.jumlah) < 0.005 ? ' (sama)' : '. Beza ' + rm(h.jumlah - S.editor.info.jumlahFail) + '; semak kadar atau item yang tidak diimport.')) : null,
     h.pendahuluan ? el('p', { class: 'bantuan' }, (h.pendahuluan.baki < 0 ? 'Baki dituntut: ' : 'Baki dibayar balik: ') + rm(Math.abs(h.pendahuluan.baki))) : null,
-    h.amaran.length ? el('div', { class: 'notis amaran' }, el('b', null, 'Semak:'), el('ul', null, h.amaran.map((a) => el('li', null, a)))) : null,
-    el('p', { class: 'bantuan' }, 'Angka akhir dikira semula di server semasa simpan dan cetak.'));
+    h.amaran.length ? el('div', { class: 'notis amaran', style: 'margin-top:12px' }, el('b', null, 'Perlu disemak'), el('ul', null, h.amaran.map((a) => el('li', null, a)))) : el('div', { class: 'notis info', style: 'margin-top:12px' }, 'Tiada isu dikesan.'),
+    el('p', { class: 'bantuan', style: 'margin-bottom:0' }, 'Angka akhir dikira semula di pelayan semasa simpan dan cetak.'));
 }
 
 // ------------------------------------------------------------ Admin

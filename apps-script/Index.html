@@ -1,0 +1,713 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+<base target="_top">
+<meta charset="utf-8">
+<title>Tuntutan Perjalanan (TNT) JHEAIPP</title>
+<style>
+  :root {
+    --bg: #f4f6f3; --kad: #ffffff; --teks: #1c2a22; --lemah: #5b6b62; --garis: #dbe3dc;
+    --utama: #0d6b4f; --utama-gelap: #08503a; --utama-lembut: #e3f2ec; --emas: #b8862b;
+    --sekat: #b42318; --sekat-lembut: #fdecea; --amaran: #8a5a00; --amaran-lembut: #fff4dc;
+    --ok: #0f7a4a; --ok-lembut: #e3f5ec; --jejari: 10px;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--teks); font: 15px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif; }
+  header.atas { background: linear-gradient(120deg, #063d2d, var(--utama) 60%, #12855f); color: #fff; padding: 12px 16px; display: flex; flex-wrap: wrap; gap: 8px 16px; align-items: center; justify-content: space-between; }
+  header.atas h1 { font-size: 17px; margin: 0; font-weight: 600; }
+  header.atas .kecil { font-size: 13px; opacity: .9; }
+  header.atas button { background: rgba(255,255,255,.15); color: #fff; border: 1px solid rgba(255,255,255,.4); border-radius: 8px; padding: 6px 12px; font: inherit; font-size: 13px; cursor: pointer; }
+  nav.tab { background: var(--kad); border-bottom: 1px solid var(--garis); display: flex; gap: 4px; padding: 0 12px; overflow-x: auto; }
+  nav.tab button { background: none; border: 0; border-bottom: 3px solid transparent; padding: 12px 12px 9px; font: inherit; color: var(--lemah); cursor: pointer; white-space: nowrap; }
+  nav.tab button.aktif { color: var(--utama); border-bottom-color: var(--utama); font-weight: 600; }
+  main { max-width: 1180px; margin: 0 auto; padding: 16px; }
+  .kad { background: var(--kad); border: 1px solid var(--garis); border-radius: var(--jejari); padding: 16px; margin-bottom: 16px; }
+  .kad h2 { font-size: 17px; margin: 0 0 12px; }
+  .kad h3 { font-size: 13px; margin: 18px 0 8px; color: var(--lemah); text-transform: uppercase; letter-spacing: .03em; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 12px; }
+  .penuh { grid-column: 1 / -1; }
+  label.medan { display: flex; flex-direction: column; gap: 4px; font-size: 13px; color: var(--lemah); }
+  input, select, textarea { font: inherit; font-size: 15px; color: var(--teks); padding: 8px 10px; border: 1px solid var(--garis); border-radius: 8px; background: #fff; width: 100%; }
+  textarea { min-height: 60px; resize: vertical; }
+  input:focus, select:focus, textarea:focus { outline: 2px solid var(--utama-lembut); border-color: var(--utama); }
+  button.btn { font: inherit; font-size: 14px; border-radius: 8px; padding: 8px 14px; border: 1px solid var(--utama); background: var(--utama); color: #fff; cursor: pointer; }
+  button.btn:hover { background: var(--utama-gelap); }
+  button.btn.kedua { background: #fff; color: var(--utama); }
+  button.btn.kedua:hover { background: var(--utama-lembut); }
+  button.btn.bahaya { background: #fff; color: var(--sekat); border-color: var(--sekat); }
+  button.btn.kecil { padding: 4px 10px; font-size: 13px; }
+  button:disabled { opacity: .55; cursor: wait; }
+  button.pautan { background: none; border: 0; color: var(--utama); cursor: pointer; font: inherit; padding: 0; text-decoration: underline; }
+  .kumpul { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+  .baris-alat { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+  .baris-alat h2 { margin: 0; }
+  .bantuan { font-size: 12px; color: var(--lemah); }
+  .jadual-skrol { overflow-x: auto; }
+  table.data { width: 100%; border-collapse: collapse; font-size: 14px; }
+  table.data th { text-align: left; font-weight: 600; color: var(--lemah); font-size: 12px; text-transform: uppercase; letter-spacing: .03em; border-bottom: 1px solid var(--garis); padding: 8px; white-space: nowrap; }
+  table.data td { border-bottom: 1px solid var(--garis); padding: 6px 8px; vertical-align: top; }
+  table.data td.nombor, table.data th.nombor { text-align: right; white-space: nowrap; }
+  table.perjalanan td { padding: 4px; }
+  table.perjalanan input, table.perjalanan select, table.perjalanan textarea { padding: 6px; font-size: 14px; }
+  table.perjalanan textarea { min-height: 38px; min-width: 200px; }
+  .lencana { display: inline-block; font-size: 12px; font-weight: 600; padding: 2px 8px; border-radius: 999px; background: var(--utama-lembut); color: var(--utama); white-space: nowrap; }
+  .lencana.amaran { background: var(--amaran-lembut); color: var(--amaran); }
+  .notis { border-radius: 8px; padding: 10px 12px; font-size: 14px; margin-bottom: 12px; }
+  .notis.amaran { background: var(--amaran-lembut); color: var(--amaran); }
+  .notis.sekat { background: var(--sekat-lembut); color: var(--sekat); }
+  .notis.info { background: var(--utama-lembut); color: var(--utama-gelap); }
+  .notis ul { margin: 4px 0 0; padding-left: 18px; }
+  .susun-editor { display: grid; grid-template-columns: minmax(0, 1fr) 300px; gap: 16px; align-items: start; }
+  .ringkasan { position: sticky; top: 12px; }
+  .ringkasan table { width: 100%; font-size: 14px; border-collapse: collapse; }
+  .ringkasan td { padding: 4px 0; }
+  .ringkasan td:last-child { text-align: right; font-variant-numeric: tabular-nums; }
+  .ringkasan tr.jumlah td { border-top: 2px solid var(--teks); font-weight: 700; font-size: 16px; padding-top: 8px; }
+  .log-masuk { min-height: 100vh; background: linear-gradient(135deg, #063d2d, var(--utama) 55%, #1a9a70); padding: 8vh 16px 16px; }
+  .log-masuk .kad { max-width: 420px; margin: 0 auto; }
+  .log-masuk .kad > * + * { margin-top: 12px; }
+  .kosong { color: var(--lemah); padding: 12px 0; }
+  #toast { position: fixed; bottom: 16px; right: 16px; left: 16px; display: flex; flex-direction: column; gap: 8px; align-items: flex-end; z-index: 50; pointer-events: none; }
+  #toast div { background: #1c2a22; color: #fff; padding: 10px 14px; border-radius: 8px; max-width: 480px; box-shadow: 0 4px 16px rgba(0,0,0,.2); pointer-events: auto; }
+  #toast div.ralat { background: var(--sekat); }
+  .notis-privasi { max-width: 1180px; margin: 0 auto 32px; padding: 0 16px; font-size: 12px; color: var(--lemah); }
+  .log-masuk .notis-privasi { color: rgba(255,255,255,.85); max-width: 420px; margin-top: 16px; padding: 0; }
+  @media (max-width: 860px) { .susun-editor { grid-template-columns: minmax(0, 1fr); } .ringkasan { position: static; } }
+</style>
+</head>
+<body>
+<div id="app"></div>
+<div id="toast"></div>
+<script>
+/*@@KOD_KIRAAN@@*/
+</script>
+<script>
+const S = { token: null, boot: null, tab: 'tuntutan' };
+
+// ------------------------------------------------------------ Utiliti DOM
+
+function el(tag, props, ...anak) {
+  const n = document.createElement(tag);
+  if (props) {
+    for (const [k, v] of Object.entries(props)) {
+      if (v === null || v === undefined || v === false) continue;
+      if (k === 'class') n.className = v;
+      else if (k === 'text') n.textContent = v;
+      else if (k.startsWith('on')) n.addEventListener(k.slice(2), v);
+      else if (k === 'value' || k === 'checked' || k === 'disabled') n[k] = v;
+      else n.setAttribute(k, v === true ? '' : v);
+    }
+  }
+  for (const c of anak.flat()) {
+    if (c === null || c === undefined || c === false) continue;
+    n.append(c instanceof Node ? c : document.createTextNode(String(c)));
+  }
+  return n;
+}
+/** append() asli menukar null kepada teks "null"; fungsi ini abaikan null/false. */
+function letak(n, ...anak) {
+  for (const c of anak.flat()) if (c !== null && c !== undefined && c !== false) n.append(c);
+  return n;
+}
+const kosongkan = (n) => { while (n.firstChild) n.removeChild(n.firstChild); return n; };
+function medan(label, input, bantuan, penuh) {
+  return el('label', { class: 'medan' + (penuh ? ' penuh' : '') }, label, input, bantuan ? el('span', { class: 'bantuan' }, bantuan) : null);
+}
+function beritahu(mesej, ralat) {
+  const d = el('div', { class: ralat ? 'ralat' : '' }, mesej);
+  document.getElementById('toast').append(d);
+  setTimeout(() => d.remove(), ralat ? 8000 : 3500);
+}
+function simpanToken(t) {
+  try { t ? sessionStorage.setItem('tnt_token', t) : sessionStorage.removeItem('tnt_token'); } catch (e) { /* storan disekat */ }
+}
+function bacaToken() {
+  try { return sessionStorage.getItem('tnt_token'); } catch (e) { return null; }
+}
+function jalan(fn, ...args) {
+  return new Promise((res, rej) => {
+    const r = google.script.run.withSuccessHandler(res).withFailureHandler(rej);
+    r[fn].apply(r, args);
+  });
+}
+const mesejRalat = (err) => String((err && err.message) || err).replace(/^Error:\s*/, '');
+async function api(fn, ...args) {
+  try {
+    return await jalan(fn, S.token, ...args);
+  } catch (err) {
+    const m = mesejRalat(err);
+    if (/Unauthorized/.test(m)) { S.token = null; simpanToken(null); paparLogMasuk('Sesi tamat. Sila log masuk semula.'); }
+    throw new Error(m);
+  }
+}
+async function tindakan(btn, fn) {
+  if (btn) btn.disabled = true;
+  try { return await fn(); }
+  catch (e) { beritahu(mesejRalat(e), true); }
+  finally { if (btn) btn.disabled = false; }
+}
+const rm = (n) => 'RM' + (Number(n) || 0).toLocaleString('en-MY', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+const bulanIni = () => { const d = new Date(); return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0'); };
+const hariIni = () => { const d = new Date(); return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'); };
+const salin = (o) => JSON.parse(JSON.stringify(o));
+
+function muatTurun(r) {
+  const bin = atob(r.base64);
+  const bait = new Uint8Array(bin.length);
+  for (let i = 0; i < bin.length; i++) bait[i] = bin.charCodeAt(i);
+  const url = URL.createObjectURL(new Blob([bait], { type: 'application/pdf' }));
+  const a = el('a', { href: url, download: r.nama, target: '_blank', rel: 'noopener' }, 'Buka PDF');
+  document.body.append(a);
+  setTimeout(() => { a.click(); a.remove(); }, 0);
+}
+
+async function cetak(btn, id) {
+  await tindakan(btn, async () => {
+    const asal = btn ? btn.textContent : '';
+    if (btn) btn.textContent = 'Menjana PDF...';
+    try {
+      const r = await api('apiCetak', id);
+      muatTurun(r);
+      beritahu('PDF sedia. Cetak pada kertas A4.');
+    } finally { if (btn) btn.textContent = asal; }
+  });
+}
+
+const notisPrivasi = () => el('p', { class: 'notis-privasi' },
+  'Notis privasi: sistem ini menyimpan nama, no. kad pengenalan, no. akaun bank, pendapatan, kenderaan dan alamat anda semata-mata untuk ',
+  'menyediakan borang tuntutan perjalanan WP1.4. Data disimpan dalam Google Sheet JHEAIPP yang tidak dikongsi, hanya boleh dilihat oleh anda dan admin sistem, ',
+  'dan disimpan mengikut tempoh simpanan rekod kewangan jabatan. Hubungi admin untuk semak atau padam data anda.');
+
+// ------------------------------------------------------------ Log masuk / daftar
+
+async function paparLogMasuk(mesej, mod) {
+  mod = mod || 'masuk';
+  const app = kosongkan(document.getElementById('app'));
+  const kad = el('div', { class: 'kad' });
+  letak(app, el('div', { class: 'log-masuk' }, kad, notisPrivasi()));
+  let domain = 'penang.gov.my';
+  jalan('apiDomain').then((d) => { domain = d; const b = document.getElementById('domain'); if (b) b.textContent = '@' + d.split(',').map((x) => x.trim()).join(' / @'); }).catch(() => {});
+  const emel = el('input', { type: 'email', autocomplete: 'username', placeholder: 'nama@penang.gov.my' });
+  const kata = el('input', { type: 'password', autocomplete: mod === 'masuk' ? 'current-password' : 'new-password' });
+  const tajuk = { masuk: 'Log masuk', daftar: 'Daftar akaun', sahkan: 'Sahkan emel', lupa: 'Lupa kata laluan', setsemula: 'Set semula kata laluan' }[mod];
+  letak(kad, el('h2', null, 'Tuntutan Perjalanan (TNT) WP1.4'), el('div', { class: 'bantuan' }, 'Jabatan Hal Ehwal Agama Islam Negeri Pulau Pinang'), el('h3', null, tajuk));
+  if (mesej) letak(kad, el('div', { class: 'notis info' }, mesej));
+
+  if (mod === 'masuk') {
+    const btn = el('button', { class: 'btn', type: 'submit' }, 'Log masuk');
+    const f = el('form', { onsubmit: (e) => { e.preventDefault(); tindakan(btn, async () => {
+      const r = await jalan('apiLogMasuk', emel.value, kata.value); masukSesi(r);
+    }); } }, medan('Emel', emel), el('p'), medan('Kata laluan', kata), el('p'), btn);
+    letak(kad, f, el('div', { class: 'kumpul' },
+      el('button', { class: 'pautan', onclick: () => paparLogMasuk('', 'daftar') }, 'Daftar akaun baharu'),
+      el('span', { class: 'bantuan' }, '·'),
+      el('button', { class: 'pautan', onclick: () => paparLogMasuk('', 'lupa') }, 'Lupa kata laluan')));
+  } else if (mod === 'daftar') {
+    const nama = el('input', { type: 'text', autocomplete: 'name' });
+    const kata2 = el('input', { type: 'password', autocomplete: 'new-password' });
+    const btn = el('button', { class: 'btn', type: 'submit' }, 'Hantar kod pengesahan');
+    letak(kad, el('p', { class: 'bantuan' }, 'Hanya emel ', el('b', { id: 'domain' }, '@' + domain), ' boleh mendaftar. Kod 6 digit akan dihantar ke emel anda.'),
+      el('form', { onsubmit: (e) => { e.preventDefault(); tindakan(btn, async () => {
+        if (kata.value !== kata2.value) throw new Error('Kata laluan tidak sepadan.');
+        const m = await jalan('apiDaftar', emel.value, nama.value, kata.value);
+        S.emelSahkan = emel.value; paparLogMasuk(m, 'sahkan');
+      }); } }, medan('Nama penuh (seperti dalam kad pengenalan)', nama), el('p'), medan('Emel rasmi', emel), el('p'),
+      medan('Kata laluan', kata, 'Sekurang-kurangnya 8 aksara, ada huruf dan nombor.'), el('p'), medan('Ulang kata laluan', kata2), el('p'), btn),
+      el('button', { class: 'pautan', onclick: () => paparLogMasuk('', 'masuk') }, 'Sudah ada akaun? Log masuk'));
+  } else if (mod === 'sahkan') {
+    const kod = el('input', { type: 'text', inputmode: 'numeric', maxlength: '6', autocomplete: 'one-time-code' });
+    const btn = el('button', { class: 'btn', type: 'submit' }, 'Sahkan dan masuk');
+    letak(kad, el('form', { onsubmit: (e) => { e.preventDefault(); tindakan(btn, async () => {
+      const r = await jalan('apiDaftarSahkan', S.emelSahkan, kod.value); masukSesi(r);
+    }); } }, medan('Kod 6 digit dari emel ' + (S.emelSahkan || ''), kod), el('p'), btn),
+      el('button', { class: 'pautan', onclick: () => paparLogMasuk('', 'daftar') }, 'Tiada kod? Daftar semula'));
+  } else if (mod === 'lupa') {
+    const btn = el('button', { class: 'btn', type: 'submit' }, 'Hantar kod');
+    letak(kad, el('form', { onsubmit: (e) => { e.preventDefault(); tindakan(btn, async () => {
+      const m = await jalan('apiLupa', emel.value); S.emelSahkan = emel.value; paparLogMasuk(m, 'setsemula');
+    }); } }, medan('Emel berdaftar', emel), el('p'), btn),
+      el('button', { class: 'pautan', onclick: () => paparLogMasuk('', 'masuk') }, 'Kembali ke log masuk'));
+  } else if (mod === 'setsemula') {
+    const kod = el('input', { type: 'text', inputmode: 'numeric', maxlength: '6', autocomplete: 'one-time-code' });
+    const btn = el('button', { class: 'btn', type: 'submit' }, 'Tukar kata laluan');
+    letak(kad, el('form', { onsubmit: (e) => { e.preventDefault(); tindakan(btn, async () => {
+      const m = await jalan('apiLupaSahkan', S.emelSahkan, kod.value, kata.value); paparLogMasuk(m, 'masuk');
+    }); } }, medan('Kod 6 digit dari emel', kod), el('p'), medan('Kata laluan baharu', kata, 'Sekurang-kurangnya 8 aksara, ada huruf dan nombor.'), el('p'), btn),
+      el('button', { class: 'pautan', onclick: () => paparLogMasuk('', 'masuk') }, 'Kembali ke log masuk'));
+  }
+}
+
+function masukSesi(r) {
+  S.token = r.token; simpanToken(r.token);
+  mula();
+}
+
+async function logKeluar() {
+  try { await jalan('apiLogKeluar', S.token); } catch (e) { /* abaikan */ }
+  S.token = null; simpanToken(null); S.boot = null;
+  paparLogMasuk('Anda telah log keluar.');
+}
+
+// ------------------------------------------------------------ Rangka utama
+
+async function mula() {
+  S.token = S.token || bacaToken();
+  if (!S.token) return paparLogMasuk();
+  try { S.boot = await api('apiMula'); } catch (e) { return; }
+  paparRangka();
+}
+
+function paparRangka() {
+  const p = S.boot.pengguna;
+  const app = kosongkan(document.getElementById('app'));
+  const tabs = [['tuntutan', 'Tuntutan saya'], ['profil', 'Profil'], ['akaun', 'Akaun']];
+  if (p.role === 'admin') tabs.push(['admin', 'Admin']);
+  const nav = el('nav', { class: 'tab' }, tabs.map(([k, l]) => el('button', { class: S.tab === k ? 'aktif' : '', onclick: () => { S.tab = k; paparRangka(); } }, l)));
+  S.isi = el('main');
+  letak(app, el('header', { class: 'atas' },
+    el('div', null, el('h1', null, 'Tuntutan Perjalanan (TNT) WP1.4'), el('div', { class: 'kecil' }, 'JHEAIPP')),
+    el('div', { class: 'kumpul' }, el('span', { class: 'kecil' }, p.nama + (p.role === 'admin' ? ' (admin)' : '')), el('button', { onclick: logKeluar }, 'Log keluar'))),
+    nav, S.isi, notisPrivasi());
+  ({ tuntutan: viewTuntutan, profil: viewProfil, akaun: viewAkaun, admin: viewAdmin })[S.tab]();
+}
+
+// ------------------------------------------------------------ Profil
+
+const MEDAN_PROFIL = [
+  ['nama', 'Nama (huruf besar)'], ['ic', 'No. kad pengenalan'], ['jawatan', 'Jawatan'], ['gred', 'Gred', 'Cth: S29, N19, DG44'],
+  ['no_akaun', 'No. akaun bank'], ['bank', 'Nama bank'], ['telefon', 'No. telefon'],
+  ['gaji', 'Gaji (RM)'], ['elaun', 'Elaun-elaun (RM)'],
+  ['kereta_model', 'Kereta: jenis/model'], ['kereta_no', 'Kereta: no. pendaftaran'],
+  ['moto_model', 'Motosikal: jenis/model'], ['moto_no', 'Motosikal: no. pendaftaran'],
+  ['alamat_rumah', 'Alamat rumah yang didaftarkan di jabatan', '', true]
+];
+
+function borangPegawai(obj, onubah) {
+  return el('div', { class: 'grid' }, MEDAN_PROFIL.map(([k, l, b, penuh]) => {
+    const i = el(penuh ? 'textarea' : 'input', { value: obj[k] || '', inputmode: ['ic', 'no_akaun', 'gaji', 'elaun'].includes(k) ? 'decimal' : null,
+      oninput: (e) => { obj[k] = e.target.value; if (onubah) onubah(); } });
+    return medan(l, i, b, penuh);
+  }));
+}
+
+function viewProfil() {
+  const prof = salin(S.boot.profil);
+  const btn = el('button', { class: 'btn' }, 'Simpan profil');
+  btn.onclick = () => tindakan(btn, async () => {
+    S.boot.profil = await api('apiSimpanProfil', prof);
+    beritahu('Profil disimpan. Tuntutan baharu akan guna maklumat ini.');
+  });
+  letak(S.isi, el('div', { class: 'kad' }, el('h2', null, 'Profil pegawai'),
+    el('p', { class: 'bantuan' }, 'Isi sekali sahaja. Maklumat ini disalin ke setiap tuntutan baharu (Muka 1 borang). Tuntutan lama tidak berubah bila profil dikemaskini.'),
+    borangPegawai(prof), el('p'), btn));
+}
+
+// ------------------------------------------------------------ Akaun
+
+function viewAkaun() {
+  const lama = el('input', { type: 'password', autocomplete: 'current-password' });
+  const baru = el('input', { type: 'password', autocomplete: 'new-password' });
+  const btn = el('button', { class: 'btn' }, 'Tukar kata laluan');
+  btn.onclick = () => tindakan(btn, async () => { beritahu(await api('apiTukarKataLaluan', lama.value, baru.value)); lama.value = baru.value = ''; });
+  letak(S.isi, el('div', { class: 'kad' }, el('h2', null, 'Akaun'), el('p', null, 'Emel: ', el('b', null, S.boot.pengguna.emel)),
+    el('div', { class: 'grid' }, medan('Kata laluan semasa', lama), medan('Kata laluan baharu', baru, 'Sekurang-kurangnya 8 aksara, ada huruf dan nombor.')),
+    el('p'), btn));
+}
+
+// ------------------------------------------------------------ Senarai tuntutan
+
+function viewTuntutan() {
+  const senarai = S.boot.tuntutan;
+  const bulan = el('input', { type: 'month', value: bulanIni() });
+  const sumber = el('select', null, el('option', { value: '' }, 'Kosong'),
+    senarai.map((t) => el('option', { value: t.id }, 'Salin perjalanan dari ' + t.label)));
+  const btnBaru = el('button', { class: 'btn' }, 'Mula tuntutan');
+  btnBaru.onclick = () => tindakan(btnBaru, async () => {
+    if (!bulan.value) throw new Error('Pilih bulan.');
+    const ada = senarai.find((t) => t.bulan === bulan.value);
+    if (ada) throw new Error('Tuntutan ' + ada.label + ' sudah ada. Klik "Buka" pada senarai.');
+    const d = dataBaru(bulan.value);
+    if (sumber.value) {
+      const lama = await api('apiBukaTuntutan', sumber.value);
+      d.perjalanan = (lama.data.perjalanan || []).map((r) => Object.assign({}, r, { tarikh: '' }));
+    }
+    bukaEditor(null, d);
+  });
+  const profilKosong = !S.boot.profil.nama || !S.boot.profil.ic;
+  letak(S.isi, 
+    profilKosong ? el('div', { class: 'notis amaran' }, 'Profil anda belum lengkap. ', el('button', { class: 'pautan', onclick: () => { S.tab = 'profil'; paparRangka(); } }, 'Isi profil dahulu'), ' supaya Muka 1 borang terisi.') : null,
+    el('div', { class: 'kad' }, el('h2', null, 'Tuntutan baharu'),
+      el('div', { class: 'grid' }, medan('Bulan tuntutan', bulan), medan('Mula dengan', sumber, 'Salin perjalanan rutin; tarikh dikosongkan.')),
+      el('p'), btnBaru),
+    el('div', { class: 'kad' }, el('h2', null, 'Tuntutan saya'),
+      senarai.length ? el('div', { class: 'jadual-skrol' }, el('table', { class: 'data' },
+        el('thead', null, el('tr', null, el('th', null, 'Bulan'), el('th', { class: 'nombor' }, 'Jumlah'), el('th', null, 'Dikemaskini'), el('th', null, 'Dicetak'), el('th'))),
+        el('tbody', null, senarai.map((t) => {
+          const bCetak = el('button', { class: 'btn kecil kedua' }, 'Cetak PDF');
+          bCetak.onclick = () => cetak(bCetak, t.id);
+          const bBuka = el('button', { class: 'btn kecil' }, 'Buka');
+          bBuka.onclick = () => tindakan(bBuka, async () => { const r = await api('apiBukaTuntutan', t.id); bukaEditor(t.id, r.data); });
+          const bPadam = el('button', { class: 'btn kecil bahaya' }, 'Padam');
+          bPadam.onclick = () => { if (confirm('Padam tuntutan ' + t.label + '?')) tindakan(bPadam, async () => { S.boot.tuntutan = await api('apiPadamTuntutan', t.id); paparRangka(); }); };
+          return el('tr', null, el('td', null, t.label), el('td', { class: 'nombor' }, rm(t.jumlah)), el('td', null, t.dikemaskini_pada),
+            el('td', null, t.dicetak_pada || '-'), el('td', null, el('div', { class: 'kumpul' }, bBuka, bCetak, bPadam)));
+        })))) : el('p', { class: 'kosong' }, 'Belum ada tuntutan.')));
+}
+
+function dataBaru(bulan) {
+  const p = S.boot.profil;
+  const peg = {};
+  MEDAN_PROFIL.forEach(([k]) => { peg[k] = p[k] || ''; });
+  return {
+    bulan: bulan, pegawai: peg, perjalanan: [],
+    makan: { sarapan: '', tengahari: '', malam: '', hari_makan: '', hari_harian: '' },
+    lojing: { malam: '', senarai: [{ tarikh: '', alamat: '' }, { tarikh: '', alamat: '' }] },
+    bsp: [{ kadar: '', hari: '', resit: '' }, { kadar: '', hari: '', resit: '' }],
+    awam: Object.fromEntries(JENIS_AWAM.map((j) => [j.kod, { rm: '', resit: '' }])),
+    tol: { rm: '', rujukan: '' }, parkir: { rm: '', rujukan: '' },
+    pengakuan: { tanpa_resit: '', resit_bukan_nama: '', tarikh: '' }, pendahuluan: ''
+  };
+}
+
+/** Lengkapkan struktur data lama supaya semua medan editor wujud. */
+function lengkapkan(d) {
+  const asas = dataBaru(d.bulan);
+  const o = Object.assign(asas, d);
+  o.makan = Object.assign(asas.makan, d.makan);
+  o.lojing = Object.assign({ malam: '', senarai: [] }, d.lojing);
+  while (o.lojing.senarai.length < 2) o.lojing.senarai.push({ tarikh: '', alamat: '' });
+  o.bsp = (d.bsp || []).slice();
+  while (o.bsp.length < 2) o.bsp.push({ kadar: '', hari: '', resit: '' });
+  o.awam = Object.assign(dataBaru(d.bulan).awam, d.awam);
+  return o;
+}
+
+// ------------------------------------------------------------ Editor tuntutan
+
+function bukaEditor(id, data) {
+  S.editor = { id: id, d: lengkapkan(salin(data)), berubah: false };
+  kosongkan(S.isi);
+  const d = S.editor.d;
+  const ringkasan = el('div', { class: 'kad ringkasan' });
+  const ubah = () => { S.editor.berubah = true; kemaskiniRingkasan(ringkasan); };
+
+  const inp = (obj, k, jenis, extra) => el('input', Object.assign({ type: jenis || 'text', value: obj[k] === 0 ? '' : (obj[k] || ''),
+    inputmode: jenis === 'number' ? 'decimal' : null, min: jenis === 'number' ? '0' : null, step: jenis === 'number' ? 'any' : null,
+    oninput: (e) => { obj[k] = e.target.value; ubah(); } }, extra || {}));
+
+  // Muka 1
+  const bulanInput = inp(d, 'bulan', 'month');
+  const kadPegawai = el('div');
+  const paparPegawai = () => letak(kosongkan(kadPegawai), borangPegawai(d.pegawai, ubah));
+  paparPegawai();
+  const muka1 = el('div', { class: 'kad' }, el('h2', null, 'Muka 1: Maklumat pegawai'),
+    el('div', { class: 'grid' }, medan('Bagi bulan', bulanInput)),
+    el('h3', null, 'Maklumat pegawai (salinan profil)'),
+    el('div', { class: 'kumpul' }, el('button', { class: 'btn kecil kedua', onclick: () => {
+      MEDAN_PROFIL.forEach(([k]) => { d.pegawai[k] = S.boot.profil[k] || ''; }); paparPegawai(); ubah();
+    } }, 'Guna profil terkini')), el('p'), kadPegawai,
+    S.boot.alamatPejabat ? el('p', { class: 'bantuan' }, 'Alamat pejabat: ' + S.boot.alamatPejabat) : el('div', { class: 'notis amaran' }, 'Alamat pejabat belum ditetapkan admin. Ruangan itu akan kosong dalam cetakan.'));
+
+  // Muka 2
+  const badanJalan = el('tbody');
+  const paparJalan = () => {
+    kosongkan(badanJalan);
+    d.perjalanan.forEach((r, i) => {
+      badanJalan.append(el('tr', null,
+        el('td', null, inp(r, 'tarikh', 'date')),
+        el('td', null, inp(r, 'bertolak', 'time')),
+        el('td', null, inp(r, 'tiba', 'time')),
+        el('td', null, el('textarea', { value: r.butiran || '', placeholder: 'Dari ... ke ... Tujuan ...', oninput: (e) => { r.butiran = e.target.value; ubah(); } })),
+        el('td', null, inp(r, 'jarak', 'number', { style: 'width:90px' })),
+        el('td', null, el('select', { onchange: (e) => { r.kenderaan = e.target.value; ubah(); } },
+          [['KERETA', 'Kereta'], ['MOTOSIKAL', 'Motosikal'], ['TIADA', 'Tiada (awam)']].map(([v, l]) => el('option', { value: v, selected: (r.kenderaan || 'KERETA') === v }, l)))),
+        el('td', null, el('div', { class: 'kumpul' },
+          el('button', { class: 'btn kecil kedua', title: 'Salin baris (cth perjalanan pulang)', onclick: () => { d.perjalanan.splice(i + 1, 0, salin(r)); paparJalan(); ubah(); } }, 'Salin'),
+          el('button', { class: 'btn kecil bahaya', onclick: () => { d.perjalanan.splice(i, 1); paparJalan(); ubah(); } }, 'Buang')))));
+    });
+    if (!d.perjalanan.length) badanJalan.append(el('tr', null, el('td', { colspan: '7', class: 'kosong' }, 'Belum ada perjalanan.')));
+  };
+  paparJalan();
+  const tambahJalan = () => {
+    const akhir = d.perjalanan[d.perjalanan.length - 1];
+    d.perjalanan.push({ tarikh: akhir ? akhir.tarikh : '', bertolak: '', tiba: '', butiran: '', jarak: '', kenderaan: akhir ? akhir.kenderaan : 'KERETA' });
+    paparJalan(); ubah();
+  };
+  const muka2 = el('div', { class: 'kad' }, el('h2', null, 'Muka 2: Kenyataan tuntutan'),
+    el('p', { class: 'bantuan' }, 'Nyatakan lokasi bertolak, lokasi dituju dan tujuan. Jarak dijumlahkan ikut kenderaan untuk kiraan mileage (Bahagian C).'),
+    el('div', { class: 'jadual-skrol' }, el('table', { class: 'data perjalanan' },
+      el('thead', null, el('tr', null, ['Tarikh', 'Bertolak', 'Tiba', 'Butiran tuntutan', 'Jarak (km)', 'Kenderaan', ''].map((h) => el('th', null, h)))), badanJalan)),
+    el('p'), el('button', { class: 'btn kedua', onclick: tambahJalan }, '+ Tambah perjalanan'));
+
+  // A
+  const m = d.makan;
+  const bahA = el('div', { class: 'kad' }, el('h2', null, 'A: Elaun makan / elaun harian (Semenanjung)'),
+    el('p', { class: 'bantuan' }, 'Kadar ikut gred anda, ditetapkan admin. Bahagian makan: sarapan 20%, tengah hari 40%, malam 40% daripada elaun makan.'),
+    el('div', { class: 'grid' },
+      medan('Elaun makan penuh (bil. hari)', inp(m, 'hari_makan', 'number')),
+      medan('Elaun harian (bil. hari)', inp(m, 'hari_harian', 'number')),
+      medan('Sarapan pagi (bil.)', inp(m, 'sarapan', 'number')),
+      medan('Makan tengah hari (bil.)', inp(m, 'tengahari', 'number')),
+      medan('Makan malam (bil.)', inp(m, 'malam', 'number'))));
+
+  // B
+  const bahB = el('div', { class: 'kad' }, el('h2', null, 'B: Penginapan (Semenanjung)'),
+    el('h3', null, 'Bayaran sewa penginapan (hotel, ikut resit)'),
+    d.bsp.map((b, i) => el('div', { class: 'grid' }, medan('Hotel ' + (i + 1) + ': kadar semalam (RM)', inp(b, 'kadar', 'number')),
+      medan('Bil. hari', inp(b, 'hari', 'number')), medan('No. resit', inp(b, 'resit')))),
+    el('h3', null, 'Elaun lojing'),
+    el('div', { class: 'grid' }, medan('Bil. malam', inp(d.lojing, 'malam', 'number'))),
+    d.lojing.senarai.map((x, i) => el('div', { class: 'grid' }, medan('Tarikh lojing ' + (i + 1), inp(x, 'tarikh', 'text', { placeholder: 'cth 12/01/2026 - 13/01/2026' })),
+      medan('Alamat lojing ' + (i + 1), inp(x, 'alamat')))));
+
+  // C
+  const bahC = el('div', { class: 'kad' }, el('h2', null, 'C: Pengangkutan'),
+    el('p', { class: 'bantuan' }, 'Mileage dikira automatik daripada Muka 2.'),
+    el('h3', null, 'Tambang pengangkutan awam'),
+    JENIS_AWAM.map((j) => el('div', { class: 'grid' }, medan(j.label + ' (RM)', inp(d.awam[j.kod], 'rm', 'number')), medan('No. resit', inp(d.awam[j.kod], 'resit')))));
+
+  // D
+  const bahD = el('div', { class: 'kad' }, el('h2', null, 'D: Belanja pelbagai'),
+    el('div', { class: 'grid' },
+      medan('Tol (RM)', inp(d.tol, 'rm', 'number')), medan('Rujukan tol', inp(d.tol, 'rujukan'), 'cth Penyata Touch\'n Go Jan 2026'),
+      medan('Tempat letak kereta (RM)', inp(d.parkir, 'rm', 'number')), medan('Rujukan parkir', inp(d.parkir, 'rujukan'))));
+
+  // Pengakuan
+  const bahP = el('div', { class: 'kad' }, el('h2', null, 'Pengakuan dan pendahuluan'),
+    el('div', { class: 'grid' },
+      medan('(c) Perbelanjaan tanpa resit (RM)', inp(d.pengakuan, 'tanpa_resit', 'number')),
+      medan('(d) Resit bukan atas nama sendiri (RM)', inp(d.pengakuan, 'resit_bukan_nama', 'number')),
+      medan('Tarikh pengakuan', inp(d.pengakuan, 'tarikh', 'date'), 'Kosongkan jika mahu tulis tangan.'),
+      medan('Pendahuluan diri diberi (RM)', inp(d, 'pendahuluan', 'number'), 'Jika ada. Muka 7.')));
+
+  const simpan = async () => {
+    const r = await api('apiSimpanTuntutan', S.editor.id, S.editor.d);
+    S.editor.id = r.id; S.editor.berubah = false;
+    if (S.boot.pengguna && r.tuntutan) S.boot.tuntutan = r.tuntutan;
+    return r;
+  };
+  const butangSimpan = () => {
+    const b = el('button', { class: 'btn' }, 'Simpan');
+    b.onclick = () => tindakan(b, async () => { await simpan(); beritahu('Tuntutan disimpan.'); });
+    return b;
+  };
+  const butangCetak = () => {
+    const b = el('button', { class: 'btn kedua' }, 'Simpan & cetak PDF');
+    b.onclick = () => tindakan(b, async () => {
+      b.textContent = 'Menjana PDF...';
+      try { await simpan(); const r = await api('apiCetak', S.editor.id); muatTurun(r); beritahu('PDF sedia. Cetak pada kertas A4.'); }
+      finally { b.textContent = 'Simpan & cetak PDF'; }
+    });
+    return b;
+  };
+  const kembali = el('button', { class: 'btn kedua', onclick: () => {
+    if (S.editor.berubah && !confirm('Ada perubahan belum disimpan. Keluar juga?')) return;
+    S.editor = null; S.tab = S.kembaliKe || 'tuntutan'; S.kembaliKe = null; paparRangka();
+  } }, '← Senarai');
+
+  letak(S.isi, el('div', { class: 'baris-alat' }, el('div', { class: 'kumpul' }, kembali, el('h2', null, 'Tuntutan ' + labelBulan(d.bulan))), el('div', { class: 'kumpul' }, butangSimpan(), butangCetak())),
+    el('div', { class: 'susun-editor' },
+      el('div', null, muka1, muka2, bahA, bahB, bahC, bahD, bahP, el('div', { class: 'kumpul' }, butangSimpan(), butangCetak())),
+      ringkasan));
+  kemaskiniRingkasan(ringkasan);
+}
+
+function kemaskiniRingkasan(kad) {
+  const d = bersihkanData(S.editor.d);
+  const h = kiraTuntutan(d, S.boot.konteks);
+  const ml = h.C.mileage;
+  const baris = (l, v, kelas) => el('tr', { class: kelas || '' }, el('td', null, l), el('td', null, rm(v)));
+  const k = h.kadar;
+  letak(kosongkan(kad), el('h2', null, 'Ringkasan'),
+    el('table', null,
+      baris('A: Makan minum', h.A.jumlah), baris('B: Penginapan', h.B.jumlah), baris('C: Pengangkutan', h.C.jumlah), baris('D: Lain-lain', h.D.jumlah),
+      baris('Jumlah keseluruhan', h.jumlah, 'jumlah')),
+    el('h3', null, 'Mileage'),
+    el('div', { class: 'bantuan' }, 'Kereta ' + h.km.kereta + ' km: ' + ml.kereta_1.km + ' km × RM' + ml.kereta_1.kadar.toFixed(2) + (ml.kereta_2.km ? ' + ' + ml.kereta_2.km + ' km × RM' + ml.kereta_2.kadar.toFixed(2) : '')),
+    h.km.moto ? el('div', { class: 'bantuan' }, 'Motosikal ' + h.km.moto + ' km: ' + ml.moto_1.km + ' km × RM' + ml.moto_1.kadar.toFixed(2) + (ml.moto_2.km ? ' + ' + ml.moto_2.km + ' km × RM' + ml.moto_2.kadar.toFixed(2) : '')) : null,
+    el('h3', null, 'Kadar digunakan'),
+    el('div', { class: 'bantuan' }, 'Berkuat kuasa pada ' + formatTarikh(k.tarikh) + (k.kumpulan ? '. Kumpulan gred: ' + k.kumpulan : '. Gred tiada kumpulan.')),
+    el('div', { class: 'bantuan' }, 'Elaun makan ' + rm(k.nilai.ELAUN_MAKAN) + ', harian ' + rm(k.nilai.ELAUN_HARIAN) + ', lojing ' + rm(k.nilai.LOJING)),
+    h.pendahuluan ? el('p', { class: 'bantuan' }, (h.pendahuluan.baki < 0 ? 'Baki dituntut: ' : 'Baki dibayar balik: ') + rm(Math.abs(h.pendahuluan.baki))) : null,
+    h.amaran.length ? el('div', { class: 'notis amaran' }, el('b', null, 'Semak:'), el('ul', null, h.amaran.map((a) => el('li', null, a)))) : null,
+    el('p', { class: 'bantuan' }, 'Angka akhir dikira semula di server semasa simpan dan cetak.'));
+}
+
+// ------------------------------------------------------------ Admin
+
+async function viewAdmin() {
+  const isi = S.isi;
+  letak(isi, el('p', { class: 'kosong' }, 'Memuatkan...'));
+  let A;
+  try { A = await api('apiAdminData'); } catch (e) { letak(kosongkan(isi), el('div', { class: 'notis sekat' }, e.message)); return; }
+  S.admin = A;
+  S.adminTab = S.adminTab || 'kadar';
+  kosongkan(isi);
+  const subtab = [['kadar', 'Kadar'], ['kumpulan', 'Kumpulan gred'], ['tetapan', 'Tetapan'], ['pengguna', 'Pengguna'], ['semua', 'Semua tuntutan'], ['log', 'Log audit']];
+  const kandungan = el('div');
+  const nav = el('div', { class: 'kumpul', style: 'margin-bottom:16px' });
+  const paparNav = () => letak(kosongkan(nav), ...subtab.map(([k, l]) => el('button', { class: 'btn kecil' + (S.adminTab === k ? '' : ' kedua'), onclick: () => { S.adminTab = k; paparNav(); paparSub(); } }, l)));
+  const paparSub = () => { kosongkan(kandungan); ({ kadar: adminKadar, kumpulan: adminKumpulan, tetapan: adminTetapan, pengguna: adminPengguna, semua: adminSemua, log: adminLog })[S.adminTab](kandungan); };
+  paparNav();
+  letak(isi, nav, kandungan);
+  paparSub();
+}
+
+function adminKadar(isi) {
+  const ctx = S.admin.konteks, KOD = S.admin.kodKadar;
+  const hari = hariIni();
+  // Kadar semasa (berkuat kuasa hari ini) dan akan datang
+  const semasa = el('tbody');
+  const kumpulan = ctx.kumpulan.map((k) => k.nama);
+  Object.keys(KOD).forEach((kod) => {
+    const senKump = KOD[kod].per_kumpulan ? kumpulan : [''];
+    senKump.forEach((kp) => {
+      const r = kadarPada(ctx.kadar, kod, kp, hari);
+      const akan = ctx.kadar.filter((x) => x.kod === kod && x.kumpulan === kp && x.kuat_kuasa > hari).sort((a, b) => a.kuat_kuasa < b.kuat_kuasa ? -1 : 1);
+      semasa.append(el('tr', null, el('td', null, KOD[kod].label), el('td', null, kp || '-'),
+        el('td', { class: 'nombor' }, r ? r.nilai : el('span', { class: 'lencana amaran' }, 'Belum ditetapkan')),
+        el('td', null, r ? formatTarikh(r.kuat_kuasa) : ''), el('td', null, r ? r.rujukan : ''),
+        el('td', null, akan.map((a) => el('div', { class: 'bantuan' }, a.nilai + ' mulai ' + formatTarikh(a.kuat_kuasa))))));
+    });
+  });
+
+  const f = { kod: 'KERETA_1', kumpulan: kumpulan[0] || '', nilai: '', kuat_kuasa: hari, rujukan: '' };
+  const pilihKump = el('select', { onchange: (e) => { f.kumpulan = e.target.value; } }, kumpulan.map((k) => el('option', { value: k }, k)));
+  const medanKump = medan('Kumpulan gred', pilihKump);
+  const kemasKump = () => { medanKump.style.display = KOD[f.kod].per_kumpulan ? '' : 'none'; };
+  const pilihKod = el('select', { onchange: (e) => { f.kod = e.target.value; kemasKump(); } }, Object.keys(KOD).map((k) => el('option', { value: k, selected: k === f.kod }, KOD[k].label + ' (' + KOD[k].unit + ')')));
+  const btn = el('button', { class: 'btn' }, 'Tambah kadar');
+  btn.onclick = () => tindakan(btn, async () => {
+    if (!confirm('Tambah kadar ' + KOD[f.kod].label + (KOD[f.kod].per_kumpulan ? ' (' + f.kumpulan + ')' : '') + ' = ' + f.nilai + ' mulai ' + formatTarikh(f.kuat_kuasa) + '?')) return;
+    S.admin.konteks = await api('apiAdminTambahKadar', f);
+    S.boot.konteks = S.admin.konteks;
+    beritahu('Kadar ditambah.');
+    kosongkan(isi); adminKadar(isi);
+  });
+  kemasKump();
+
+  const sejarah = ctx.kadar.slice().sort((a, b) => (a.kod + a.kumpulan + b.kuat_kuasa) < (b.kod + b.kumpulan + a.kuat_kuasa) ? -1 : 1);
+  letak(isi, 
+    el('div', { class: 'kad' }, el('h2', null, 'Kadar berkuat kuasa hari ini'),
+      el('p', { class: 'bantuan' }, 'Tuntutan dikira dengan kadar yang berkuat kuasa pada 1hb bulan tuntutan.'),
+      el('div', { class: 'jadual-skrol' }, el('table', { class: 'data' }, el('thead', null, el('tr', null, ['Kadar', 'Kumpulan', 'Nilai', 'Mulai', 'Rujukan', 'Akan datang'].map((h) => el('th', null, h)))), semasa))),
+    el('div', { class: 'kad' }, el('h2', null, 'Pekeliling baharu: tambah kadar'),
+      el('div', { class: 'notis info' }, 'Contoh: mileage kereta naik ke RM1.00 mulai 01/01/2027. Pilih "Kereta: kadar peringkat pertama", isi 1.00, tarikh 2027-01-01 dan nombor pekeliling. Kadar lama tidak dipadam, jadi tuntutan sebelum tarikh itu kekal guna kadar lama.'),
+      el('div', { class: 'grid' }, medan('Kadar', pilihKod), medanKump,
+        medan('Nilai', el('input', { type: 'number', step: 'any', min: '0', oninput: (e) => { f.nilai = e.target.value; } })),
+        medan('Tarikh kuat kuasa', el('input', { type: 'date', value: f.kuat_kuasa, oninput: (e) => { f.kuat_kuasa = e.target.value; } })),
+        medan('Rujukan pekeliling', el('input', { placeholder: 'cth PP WP1.4 Pindaan 1/2027', oninput: (e) => { f.rujukan = e.target.value; } }), null, true)),
+      !kumpulan.length ? el('p', { class: 'bantuan' }, 'Kadar elaun makan, harian dan lojing perlukan kumpulan gred. Cipta di tab Kumpulan gred dahulu.') : null,
+      el('p'), btn),
+    el('div', { class: 'kad' }, el('h2', null, 'Sejarah kadar'),
+      el('div', { class: 'jadual-skrol' }, el('table', { class: 'data' },
+        el('thead', null, el('tr', null, ['Kadar', 'Kumpulan', 'Nilai', 'Mulai', 'Rujukan', 'Oleh', ''].map((h) => el('th', null, h)))),
+        el('tbody', null, sejarah.map((r) => {
+          const b = el('button', { class: 'btn kecil bahaya' }, 'Padam');
+          b.onclick = () => { if (confirm('Padam kadar ini? Hanya padam jika tersalah masuk. Tuntutan yang terlibat akan dikira semula bila dicetak.')) tindakan(b, async () => {
+            S.admin.konteks = await api('apiAdminPadamKadar', r.id); S.boot.konteks = S.admin.konteks; kosongkan(isi); adminKadar(isi);
+          }); };
+          return el('tr', null, el('td', null, (KOD[r.kod] || {}).label || r.kod), el('td', null, r.kumpulan || '-'), el('td', { class: 'nombor' }, r.nilai),
+            el('td', null, formatTarikh(r.kuat_kuasa)), el('td', null, r.rujukan), el('td', { class: 'bantuan' }, r.oleh), el('td', null, b));
+        }))))));
+}
+
+function adminKumpulan(isi) {
+  const ctx = S.admin.konteks;
+  const f = { id: '', nama: '', gred_min: '', gred_maks: '', catatan: '' };
+  const inN = el('input', { oninput: (e) => { f.nama = e.target.value; } });
+  const inMin = el('input', { type: 'number', min: '0', oninput: (e) => { f.gred_min = e.target.value; } });
+  const inMaks = el('input', { type: 'number', min: '0', oninput: (e) => { f.gred_maks = e.target.value; } });
+  const inC = el('input', { oninput: (e) => { f.catatan = e.target.value; } });
+  const btn = el('button', { class: 'btn' }, 'Simpan kumpulan');
+  btn.onclick = () => tindakan(btn, async () => {
+    S.admin.konteks = await api('apiAdminSimpanKumpulan', f); S.boot.konteks = S.admin.konteks; beritahu('Kumpulan disimpan.'); kosongkan(isi); adminKumpulan(isi);
+  });
+  letak(isi, el('div', { class: 'kad' }, el('h2', null, 'Kumpulan gred'),
+    el('p', { class: 'bantuan' }, 'Kadar elaun makan, harian dan lojing ditetapkan ikut kumpulan. Gred pegawai dipadankan ikut nombor (cth S29 → 29). Kosongkan gred maksimum untuk "dan ke atas".'),
+    ctx.kumpulan.length ? el('table', { class: 'data' }, el('thead', null, el('tr', null, ['Nama', 'Gred', 'Catatan', ''].map((h) => el('th', null, h)))),
+      el('tbody', null, ctx.kumpulan.map((k) => {
+        const bU = el('button', { class: 'btn kecil kedua', onclick: () => { Object.assign(f, k); inN.value = k.nama; inMin.value = k.gred_min; inMaks.value = k.gred_maks; inC.value = k.catatan; inN.focus(); } }, 'Ubah');
+        const bP = el('button', { class: 'btn kecil bahaya' }, 'Padam');
+        bP.onclick = () => { if (confirm('Padam kumpulan ' + k.nama + '?')) tindakan(bP, async () => { S.admin.konteks = await api('apiAdminPadamKumpulan', k.id); S.boot.konteks = S.admin.konteks; kosongkan(isi); adminKumpulan(isi); }); };
+        return el('tr', null, el('td', null, k.nama), el('td', null, k.gred_min + (k.gred_maks ? ' hingga ' + k.gred_maks : ' dan ke atas')), el('td', null, k.catatan), el('td', null, el('div', { class: 'kumpul' }, bU, bP)));
+      }))) : el('p', { class: 'kosong' }, 'Belum ada kumpulan.'),
+    el('h3', null, 'Tambah / ubah'),
+    el('div', { class: 'grid' }, medan('Nama kumpulan', inN, 'cth GRED 1-18'), medan('Gred minimum', inMin), medan('Gred maksimum', inMaks), medan('Catatan', inC)),
+    el('p'), btn));
+}
+
+function adminTetapan(isi) {
+  letak(isi, el('div', { class: 'kad' }, el('h2', null, 'Tetapan'),
+    S.admin.tetapan.map((t) => {
+      const i = el(t.kunci === 'ALAMAT_PEJABAT' ? 'textarea' : 'input', { value: t.nilai });
+      const b = el('button', { class: 'btn kecil' }, 'Simpan');
+      b.onclick = () => tindakan(b, async () => {
+        await api('apiAdminSimpanTetapan', t.kunci, i.value); t.nilai = i.value;
+        if (t.kunci === 'ALAMAT_PEJABAT') S.boot.alamatPejabat = i.value;
+        beritahu('Tetapan ' + t.kunci + ' disimpan.');
+      });
+      return el('div', { style: 'margin-bottom:14px' }, medan(t.kunci, i, t.keterangan, true), el('p', { style: 'margin:6px 0 0' }), b);
+    })));
+}
+
+function adminPengguna(isi) {
+  const cari = el('input', { type: 'search', placeholder: 'Cari nama atau emel...' });
+  const badan = el('tbody');
+  const papar = () => {
+    const q = cari.value.toLowerCase();
+    letak(kosongkan(badan), ...S.admin.pengguna.filter((u) => !q || (u.nama + ' ' + u.emel).toLowerCase().includes(q)).map((u) => {
+      const role = el('select', null, [['pengguna', 'Pengguna'], ['admin', 'Admin']].map(([v, l]) => el('option', { value: v, selected: u.role === v }, l)));
+      role.onchange = () => tindakan(role, async () => { await api('apiAdminKemaskiniPengguna', u.emel, { role: role.value }); u.role = role.value; beritahu('Peranan dikemaskini.'); });
+      const aktif = el('select', null, [['YA', 'Aktif'], ['TIDAK', 'Tidak aktif']].map(([v, l]) => el('option', { value: v, selected: u.aktif === v }, l)));
+      aktif.onchange = () => tindakan(aktif, async () => { await api('apiAdminKemaskiniPengguna', u.emel, { aktif: aktif.value }); u.aktif = aktif.value; beritahu('Status dikemaskini.'); });
+      return el('tr', null, el('td', null, u.nama), el('td', null, u.emel), el('td', null, role), el('td', null, aktif), el('td', { class: 'bantuan' }, u.log_masuk_terakhir));
+    }));
+  };
+  cari.oninput = papar;
+  papar();
+  letak(isi, el('div', { class: 'kad' }, el('h2', null, 'Pengguna (' + S.admin.pengguna.length + ')'), cari, el('p'),
+    el('div', { class: 'jadual-skrol' }, el('table', { class: 'data' }, el('thead', null, el('tr', null, ['Nama', 'Emel', 'Peranan', 'Status', 'Log masuk terakhir'].map((h) => el('th', null, h)))), badan))));
+}
+
+async function adminSemua(isi) {
+  const bulan = el('input', { type: 'month', value: bulanIni() });
+  const hasil = el('div');
+  const muat = async () => {
+    letak(kosongkan(hasil), el('p', { class: 'kosong' }, 'Memuatkan...'));
+    try {
+      const sen = await api('apiAdminTuntutan', bulan.value);
+      const jumlah = sen.reduce((s, t) => s + (Number(t.jumlah) || 0), 0);
+      letak(kosongkan(hasil), sen.length ? el('div', { class: 'jadual-skrol' }, el('table', { class: 'data' },
+        el('thead', null, el('tr', null, ['Nama', 'Emel', 'Bulan', 'Jumlah', 'Dicetak', ''].map((h) => el('th', { class: h === 'Jumlah' ? 'nombor' : '' }, h)))),
+        el('tbody', null, sen.map((t) => {
+          const bC = el('button', { class: 'btn kecil kedua' }, 'Cetak PDF'); bC.onclick = () => cetak(bC, t.id);
+          const bB = el('button', { class: 'btn kecil' }, 'Buka');
+          bB.onclick = () => tindakan(bB, async () => { const r = await api('apiBukaTuntutan', t.id); S.kembaliKe = 'admin'; bukaEditor(t.id, r.data); });
+          return el('tr', null, el('td', null, t.nama), el('td', null, t.emel), el('td', null, t.label), el('td', { class: 'nombor' }, rm(t.jumlah)),
+            el('td', null, t.dicetak_pada || '-'), el('td', null, el('div', { class: 'kumpul' }, bB, bC)));
+        })),
+        el('tfoot', null, el('tr', null, el('td', { colspan: '3' }, el('b', null, sen.length + ' tuntutan')), el('td', { class: 'nombor' }, el('b', null, rm(jumlah))), el('td'), el('td'))))) : el('p', { class: 'kosong' }, 'Tiada tuntutan.'));
+    } catch (e) { letak(kosongkan(hasil), el('div', { class: 'notis sekat' }, e.message)); }
+  };
+  bulan.onchange = muat;
+  letak(isi, el('div', { class: 'kad' }, el('h2', null, 'Semua tuntutan'), el('div', { class: 'grid' }, medan('Bulan (kosongkan untuk semua)', bulan)), el('p'), hasil));
+  muat();
+}
+
+async function adminLog(isi) {
+  const kad = el('div', { class: 'kad' }, el('h2', null, 'Log audit (200 terkini)'), el('p', { class: 'kosong' }, 'Memuatkan...'));
+  letak(isi, kad);
+  try {
+    const log = await api('apiAdminLog');
+    kad.lastChild.remove();
+    letak(kad, el('div', { class: 'jadual-skrol' }, el('table', { class: 'data' },
+      el('thead', null, el('tr', null, ['Masa', 'Emel', 'Tindakan', 'Tab', 'Rekod', 'Butiran'].map((h) => el('th', null, h)))),
+      el('tbody', null, log.map((r) => el('tr', null, r.map((c) => el('td', { class: 'bantuan' }, c))))))));
+  } catch (e) { letak(kad, el('div', { class: 'notis sekat' }, e.message)); }
+}
+
+mula();
+</script>
+</body>
+</html>

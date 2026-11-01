@@ -1,0 +1,10 @@
+{
+  "name": "borang-tnt-jheaipp",
+  "private": true,
+  "description": "Sistem pengisian dan cetakan Borang Tuntutan Elaun Perjalanan Dalam Negeri WP1.4 (Google Apps Script)",
+  "scripts": {
+    "bina": "node tools/bina.js",
+    "test": "node tools/bina.js && node --test tests/*.test.js",
+    "pratonton": "node tools/peta-json.js > /tmp/peta-tnt.json && python3 tools/pratonton.py templat/TNT-WP1.4-KOSONG.xlsx /tmp/peta-tnt.json pratonton.xlsx"
+  }
+}

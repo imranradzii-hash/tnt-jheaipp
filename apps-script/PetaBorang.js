@@ -176,5 +176,32 @@ function petaBorang(data, hasil, tetapan) {
     tulis('Muka 7', 'G25', rmTeks(Math.abs(hasil.pendahuluan.baki)));
   }
 
-  return { sel: sel, tambahBaris: tambah, bilPerjalanan: n, tinggiBaris: tinggiBarisPerjalanan(data.perjalanan), julat: julatCetak(tambah) };
+  // ---- Kemasan susun atur templat (label terpotong, warna isian)
+  LABEL_MAKAN.forEach(function (l, i) {
+    tulis('Muka 3', 'A' + (7 + i), l);
+    tulis('Muka 3', 'H' + (7 + i), l);
+  });
+
+  return {
+    sel: sel, tambahBaris: tambah, bilPerjalanan: n, tinggiBaris: tinggiBarisPerjalanan(data.perjalanan),
+    julat: julatCetak(tambah), gaya: GAYA_CETAK, tinggiLain: TINGGI_BARIS_LAIN
+  };
 }
+
+// Templat asal pad label dengan ruang kosong (font 14), jadi teks melimpah dan terpotong di sebelah kiri.
+var LABEL_MAKAN = ['Sarapan Pagi\n(20%)', 'Makan Tengah Hari\n(40%)', 'Makan Malam\n(40%)'];
+
+var HITAM = '#000000';
+var GAYA_LABEL_MAKAN = { saiz: 12, mendatar: 'center', menegak: 'middle', balut: true };
+/** Format sel selepas isi: [helaian, sel, gaya]. */
+var GAYA_CETAK = [
+  ['Muka 1', 'E6', { warna: HITAM }], // bulan tuntutan (templat: biru)
+  ['Muka 1', 'C23', { warna: HITAM }], // alamat rumah pegawai (templat: biru)
+  ['Muka 3', 'A7:A9', GAYA_LABEL_MAKAN],
+  ['Muka 3', 'H7:H9', GAYA_LABEL_MAKAN],
+  ['Muka 5', 'L33', { menegak: 'middle' }] // Tempat Letak Kereta: sejajar dengan baris lain
+];
+/** Tinggi baris tetap (px): [helaian, baris, tinggi]. */
+var TINGGI_BARIS_LAIN = [
+  ['Muka 1', 24, 175] // label *Alamat Rumah Pemandu/... terpotong pada 133px
+];

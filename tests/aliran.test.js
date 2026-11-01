@@ -77,6 +77,14 @@ test('tuntutan: simpan, satu bulan satu tuntutan, akses pemilik sahaja, cetak', 
   assert.strictEqual(salinan.getSheetByName('Muka 1').nilai.C22, 'ALAMAT JHEAIPP');
   assert.strictEqual(salinan.getSheetByName('Muka 2').maxCols, 6); // lajur lebihan dibuang
   assert.ok(/scale=4/.test(g.state.fetch[0]));
+  // Kemasan cetakan: bulan huruf besar & hitam, alamat rumah hitam, label makan bersih
+  const m1 = salinan.getSheetByName('Muka 1'), m3 = salinan.getSheetByName('Muka 3');
+  assert.strictEqual(m1.nilai.E6, 'JANUARI 2026');
+  assert.strictEqual(m1.gaya.E6.warna, '#000000');
+  assert.strictEqual(m1.gaya.C23.warna, '#000000');
+  assert.strictEqual(m1.tinggi[24], 175);
+  assert.strictEqual(m3.nilai.A8, 'Makan Tengah Hari\n(40%)');
+  assert.strictEqual(m3.gaya['A7:A9'].saiz, 12);
 });
 
 test('admin: kadar baharu ikut tarikh, pengguna biasa tidak boleh ubah kadar', () => {

@@ -2,3 +2,4 @@ node_modules/
 pratonton.xlsx
 *.log
 web/
+.netlify/

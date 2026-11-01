@@ -1408,8 +1408,8 @@ function sediakanTemplat(xlsxId) {
     var nilai = julat.getValues(), formula = julat.getFormulas();
     for (var r = 0; r < nilai.length; r++) {
       for (var c = 0; c < nilai[r].length; c++) {
-        if (!formula[r][c] && typeof nilai[r][c] === 'string' && nilai[r][c].indexOf('') >= 0) {
-          sh.getRange(r + 1, c + 1).setValue(nilai[r][c].replace(//g, '☐'));
+        if (!formula[r][c] && typeof nilai[r][c] === 'string' && nilai[r][c].indexOf('\uf063') >= 0) {
+          sh.getRange(r + 1, c + 1).setValue(nilai[r][c].replace(/\uf063/g, '\u2610'));
         }
       }
     }

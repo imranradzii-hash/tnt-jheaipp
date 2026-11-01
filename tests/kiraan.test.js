@@ -93,3 +93,21 @@ test('tinggi baris Muka 2 ikut panjang butiran', () => {
   assert.ok(t[0] > t[1], 'baris panjang lebih tinggi');
   assert.ok(t[0] >= 5 * 14, 'muat 5 baris teks');
 });
+
+test('kadar manual pemohon mengatasi kadar admin, dengan amaran', () => {
+  const d = salin(DATA);
+  d.kadar_manual = { ELAUN_MAKAN: '75', LOJING: '' };
+  const h = g.kiraTuntutan(g.bersihkanData(d), { kadar: KADAR, kumpulan: KUMPULAN });
+  assert.strictEqual(h.A.makan_penuh.kadar, 75);
+  assert.strictEqual(h.A.sarapan.kadar, 15); // 20% daripada 75
+  assert.strictEqual(h.B.lojing.kadar, 100); // kosong → ikut admin
+  assert.strictEqual(h.kadar.rujukan.ELAUN_MAKAN, 'Diisi manual oleh pemohon');
+  assert.ok(h.amaran.some((a) => /diisi manual RM75\.00, berbeza/.test(a)));
+  // Tiada kumpulan gred tetapi kadar manual diisi: tiada amaran "gred tidak sepadan"
+  const d2 = salin(DATA); d2.pegawai.gred = 'S99';
+  d2.kadar_manual = { ELAUN_MAKAN: '60', ELAUN_HARIAN: '30', LOJING: '100' };
+  const h2 = g.kiraTuntutan(g.bersihkanData(d2), { kadar: KADAR, kumpulan: KUMPULAN.slice(0, 2) });
+  assert.strictEqual(h2.A.jumlah, 150);
+  assert.ok(!h2.amaran.some((a) => /tidak sepadan/.test(a)));
+  assert.ok(h2.amaran.some((a) => /tiada kadar admin/.test(a)));
+});

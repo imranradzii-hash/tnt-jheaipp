@@ -127,7 +127,8 @@ function bersihkanData(d) {
       resit_bukan_nama: amaun((d.pengakuan || {}).resit_bukan_nama),
       tarikh: sahTarikh((d.pengakuan || {}).tarikh) ? d.pengakuan.tarikh : ''
     },
-    pendahuluan: amaun(d.pendahuluan)
+    pendahuluan: amaun(d.pendahuluan),
+    kadar_manual: KOD_KADAR_MANUAL.reduce(function (o, kod) { o[kod] = amaun((d.kadar_manual || {})[kod]); return o; }, {})
   };
 }
 
@@ -146,6 +147,22 @@ function kiraTuntutan(data, konteks) {
   var k = kadarUntuk(konteks, data.bulan, data.pegawai.gred);
   var v = k.nilai;
   var amaran = [];
+
+  // Kadar diisi manual oleh pemohon mengatasi kadar admin
+  k.manual = [];
+  var manual = data.kadar_manual || {};
+  KOD_KADAR_MANUAL.forEach(function (kod) {
+    if (manual[kod] > 0) {
+      if (v[kod] && v[kod] !== manual[kod]) {
+        amaran.push(KOD_KADAR[kod].label + ' diisi manual RM' + manual[kod].toFixed(2) + ', berbeza dengan kadar admin RM' + v[kod].toFixed(2) + '.');
+      } else if (!v[kod]) {
+        amaran.push(KOD_KADAR[kod].label + ' diisi manual RM' + manual[kod].toFixed(2) + ' (tiada kadar admin). Pastikan ikut pekeliling.');
+      }
+      v[kod] = manual[kod];
+      k.rujukan[kod] = 'Diisi manual oleh pemohon';
+      k.manual.push(kod);
+    }
+  });
 
   // C: mileage
   var kmKereta = 0, kmMoto = 0, jumlahKm = 0;
@@ -204,7 +221,7 @@ function kiraTuntutan(data, konteks) {
   if ((kmKereta > 0 && (!v.KERETA_1 || (pk[1] > 0 && !v.KERETA_2))) || (kmMoto > 0 && (!v.MOTO_1 || (pm[1] > 0 && !v.MOTO_2)))) {
     amaran.push('Kadar mileage belum ditetapkan admin.');
   }
-  if (!k.kumpulan && (gunaMakan || m.hari_harian > 0 || lj.malam > 0)) {
+  if (!k.kumpulan && ((gunaMakan && !em) || (m.hari_harian > 0 && !eh) || (lj.malam > 0 && !lj.kadar))) {
     amaran.push('Gred "' + (data.pegawai.gred || '') + '" tidak sepadan dengan mana-mana kumpulan gred. Maklumkan admin.');
   }
   if (kmKereta > 0 && !data.pegawai.kereta_no) amaran.push('No. pendaftaran kereta belum diisi dalam profil.');

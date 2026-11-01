@@ -127,6 +127,9 @@ var KOD_KADAR = {
   LOJING: { label: 'Elaun lojing semalam (Semenanjung)', unit: 'RM', per_kumpulan: true }
 };
 
+// Kadar yang pemohon boleh isi sendiri dalam tuntutan (jika admin belum tetapkan atau berbeza)
+var KOD_KADAR_MANUAL = ['ELAUN_MAKAN', 'ELAUN_HARIAN', 'LOJING'];
+
 // Peratus bahagian makan (WP1.4): sarapan 20%, tengah hari 40%, malam 40%
 var PERATUS_MAKAN = { sarapan: 0.2, tengahari: 0.4, malam: 0.4 };
 
@@ -399,7 +402,8 @@ function bersihkanData(d) {
       resit_bukan_nama: amaun((d.pengakuan || {}).resit_bukan_nama),
       tarikh: sahTarikh((d.pengakuan || {}).tarikh) ? d.pengakuan.tarikh : ''
     },
-    pendahuluan: amaun(d.pendahuluan)
+    pendahuluan: amaun(d.pendahuluan),
+    kadar_manual: KOD_KADAR_MANUAL.reduce(function (o, kod) { o[kod] = amaun((d.kadar_manual || {})[kod]); return o; }, {})
   };
 }
 
@@ -418,6 +422,22 @@ function kiraTuntutan(data, konteks) {
   var k = kadarUntuk(konteks, data.bulan, data.pegawai.gred);
   var v = k.nilai;
   var amaran = [];
+
+  // Kadar diisi manual oleh pemohon mengatasi kadar admin
+  k.manual = [];
+  var manual = data.kadar_manual || {};
+  KOD_KADAR_MANUAL.forEach(function (kod) {
+    if (manual[kod] > 0) {
+      if (v[kod] && v[kod] !== manual[kod]) {
+        amaran.push(KOD_KADAR[kod].label + ' diisi manual RM' + manual[kod].toFixed(2) + ', berbeza dengan kadar admin RM' + v[kod].toFixed(2) + '.');
+      } else if (!v[kod]) {
+        amaran.push(KOD_KADAR[kod].label + ' diisi manual RM' + manual[kod].toFixed(2) + ' (tiada kadar admin). Pastikan ikut pekeliling.');
+      }
+      v[kod] = manual[kod];
+      k.rujukan[kod] = 'Diisi manual oleh pemohon';
+      k.manual.push(kod);
+    }
+  });
 
   // C: mileage
   var kmKereta = 0, kmMoto = 0, jumlahKm = 0;
@@ -476,7 +496,7 @@ function kiraTuntutan(data, konteks) {
   if ((kmKereta > 0 && (!v.KERETA_1 || (pk[1] > 0 && !v.KERETA_2))) || (kmMoto > 0 && (!v.MOTO_1 || (pm[1] > 0 && !v.MOTO_2)))) {
     amaran.push('Kadar mileage belum ditetapkan admin.');
   }
-  if (!k.kumpulan && (gunaMakan || m.hari_harian > 0 || lj.malam > 0)) {
+  if (!k.kumpulan && ((gunaMakan && !em) || (m.hari_harian > 0 && !eh) || (lj.malam > 0 && !lj.kadar))) {
     amaran.push('Gred "' + (data.pegawai.gred || '') + '" tidak sepadan dengan mana-mana kumpulan gred. Maklumkan admin.');
   }
   if (kmKereta > 0 && !data.pegawai.kereta_no) amaran.push('No. pendaftaran kereta belum diisi dalam profil.');
@@ -693,7 +713,18 @@ function importFormat2026(b) {
     nota.push('Ada tuntutan pemandu atau elaun gantian tetap dalam fail. Bahagian ini tidak disokong sistem.');
   }
 
+  // Kadar elaun dalam fail dibawa sebagai kadar manual (pemohon boleh kosongkan untuk guna kadar admin)
+  var kadarManual = {
+    ELAUN_MAKAN: makan.hari_makan || makan.sarapan || makan.tengahari || makan.malam ? amaunTeks(selNilai(m3, 'B11')) : 0,
+    ELAUN_HARIAN: makan.hari_harian ? amaunTeks(selNilai(m3, 'B13')) : 0,
+    LOJING: lojingMalam ? amaunTeks(selNilai(m4, 'B5')) : 0
+  };
+  if (kadarManual.ELAUN_MAKAN || kadarManual.ELAUN_HARIAN || kadarManual.LOJING) {
+    nota.push('Kadar elaun daripada fail dibawa sebagai kadar manual. Kosongkan di bahagian A jika mahu guna kadar admin.');
+  }
+
   var data = {
+    kadar_manual: kadarManual,
     bulan: bulanInfo.bulan, pegawai: peg, perjalanan: perjalanan, makan: makan,
     lojing: { malam: lojingMalam, senarai: senaraiLojing }, bsp: bsp, awam: awam,
     tol: { rm: amaunTeks(selNilai(m6, 'L3')), rujukan: rujukan(selTeks(m6, 'A3')) },
@@ -1136,7 +1167,8 @@ function dataBaru(bulan) {
     bsp: [{ kadar: '', hari: '', resit: '' }, { kadar: '', hari: '', resit: '' }],
     awam: Object.fromEntries(JENIS_AWAM.map((j) => [j.kod, { rm: '', resit: '' }])),
     tol: { rm: '', rujukan: '' }, parkir: { rm: '', rujukan: '' },
-    pengakuan: { tanpa_resit: '', resit_bukan_nama: '', tarikh: '' }, pendahuluan: ''
+    pengakuan: { tanpa_resit: '', resit_bukan_nama: '', tarikh: '' }, pendahuluan: '',
+    kadar_manual: { ELAUN_MAKAN: '', ELAUN_HARIAN: '', LOJING: '' }
   };
 }
 
@@ -1150,6 +1182,7 @@ function lengkapkan(d) {
   o.bsp = (d.bsp || []).slice();
   while (o.bsp.length < 2) o.bsp.push({ kadar: '', hari: '', resit: '' });
   o.awam = Object.assign(dataBaru(d.bulan).awam, d.awam);
+  o.kadar_manual = Object.assign({ ELAUN_MAKAN: '', ELAUN_HARIAN: '', LOJING: '' }, d.kadar_manual);
   return o;
 }
 
@@ -1210,10 +1243,31 @@ function bukaEditor(id, data, info) {
       el('thead', null, el('tr', null, ['Tarikh', 'Bertolak', 'Tiba', 'Butiran tuntutan', 'Jarak (km)', 'Kenderaan', ''].map((h) => el('th', null, h)))), badanJalan)),
     el('p'), el('button', { class: 'btn kedua', onclick: tambahJalan }, '+ Tambah perjalanan'));
 
+  // Kadar manual (elaun makan, harian, lojing): butang buka/tutup
+  const km = d.kadar_manual;
+  const adaManual = () => ['ELAUN_MAKAN', 'ELAUN_HARIAN', 'LOJING'].some((k) => Number(km[k]) > 0);
+  const kadarAdmin = (kod) => { const h = kiraTuntutan(bersihkanData(Object.assign({}, d, { kadar_manual: {} })), S.boot.konteks); return h.kadar.nilai[kod]; };
+  const petakManual = (kod, label) => medan(label, inp(km, kod, 'number', { placeholder: kadarAdmin(kod) ? 'Kadar admin: RM' + kadarAdmin(kod).toFixed(2) : 'Tiada kadar admin' }));
+  const panelManual = el('div', { class: 'kad', style: 'background:var(--utama-lembut);margin:12px 0 0' + (adaManual() ? '' : ';display:none') },
+    el('b', null, 'Kadar diisi sendiri'),
+    el('p', { class: 'bantuan' }, 'Isi hanya jika admin belum tetapkan kadar untuk gred anda, atau kadar anda berbeza. Kosongkan untuk guna kadar admin. Tuntutan akan ditanda "kadar diisi manual" untuk semakan.'),
+    el('div', { class: 'grid' },
+      petakManual('ELAUN_MAKAN', 'Elaun makan sehari (RM)'),
+      petakManual('ELAUN_HARIAN', 'Elaun harian sehari (RM)'),
+      petakManual('LOJING', 'Elaun lojing semalam (RM)')));
+  const btnManual = el('button', { class: 'btn kecil kedua', type: 'button' }, adaManual() ? 'Tutup kadar manual' : 'Isi kadar sendiri (manual)');
+  btnManual.onclick = () => {
+    const buka = panelManual.style.display === 'none';
+    panelManual.style.display = buka ? '' : 'none';
+    btnManual.textContent = buka ? 'Tutup kadar manual' : 'Isi kadar sendiri (manual)';
+    if (!buka) { km.ELAUN_MAKAN = km.ELAUN_HARIAN = km.LOJING = ''; panelManual.querySelectorAll('input').forEach((i) => { i.value = ''; }); ubah(); }
+  };
+
   // A
   const m = d.makan;
   const bahA = el('div', { class: 'kad' }, el('h2', null, 'A: Elaun makan / elaun harian (Semenanjung)'),
     el('p', { class: 'bantuan' }, 'Kadar ikut gred anda, ditetapkan admin. Bahagian makan: sarapan 20%, tengah hari 40%, malam 40% daripada elaun makan.'),
+    el('div', { class: 'kumpul' }, btnManual), panelManual, el('p'),
     el('div', { class: 'grid' },
       medan('Elaun makan penuh (bil. hari)', inp(m, 'hari_makan', 'number')),
       medan('Elaun harian (bil. hari)', inp(m, 'hari_harian', 'number')),
@@ -1301,6 +1355,7 @@ function kemaskiniRingkasan(kad) {
     el('h3', null, 'Kadar digunakan'),
     el('div', { class: 'bantuan' }, 'Berkuat kuasa pada ' + formatTarikh(k.tarikh) + (k.kumpulan ? '. Kumpulan gred: ' + k.kumpulan : '. Gred tiada kumpulan.')),
     el('div', { class: 'bantuan' }, 'Elaun makan ' + rm(k.nilai.ELAUN_MAKAN) + ', harian ' + rm(k.nilai.ELAUN_HARIAN) + ', lojing ' + rm(k.nilai.LOJING)),
+    k.manual && k.manual.length ? el('span', { class: 'lencana amaran' }, 'Kadar diisi manual') : null,
     S.editor.info && S.editor.info.jumlahFail ? el('div', { class: 'notis ' + (Math.abs(S.editor.info.jumlahFail - h.jumlah) < 0.005 ? 'info' : 'amaran') },
       'Jumlah dalam fail asal: ' + rm(S.editor.info.jumlahFail) + (Math.abs(S.editor.info.jumlahFail - h.jumlah) < 0.005 ? ' (sama)' : '. Beza ' + rm(h.jumlah - S.editor.info.jumlahFail) + '; semak kadar atau item yang tidak diimport.')) : null,
     h.pendahuluan ? el('p', { class: 'bantuan' }, (h.pendahuluan.baki < 0 ? 'Baki dituntut: ' : 'Baki dibayar balik: ') + rm(Math.abs(h.pendahuluan.baki))) : null,

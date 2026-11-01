@@ -197,7 +197,18 @@ function importFormat2026(b) {
     nota.push('Ada tuntutan pemandu atau elaun gantian tetap dalam fail. Bahagian ini tidak disokong sistem.');
   }
 
+  // Kadar elaun dalam fail dibawa sebagai kadar manual (pemohon boleh kosongkan untuk guna kadar admin)
+  var kadarManual = {
+    ELAUN_MAKAN: makan.hari_makan || makan.sarapan || makan.tengahari || makan.malam ? amaunTeks(selNilai(m3, 'B11')) : 0,
+    ELAUN_HARIAN: makan.hari_harian ? amaunTeks(selNilai(m3, 'B13')) : 0,
+    LOJING: lojingMalam ? amaunTeks(selNilai(m4, 'B5')) : 0
+  };
+  if (kadarManual.ELAUN_MAKAN || kadarManual.ELAUN_HARIAN || kadarManual.LOJING) {
+    nota.push('Kadar elaun daripada fail dibawa sebagai kadar manual. Kosongkan di bahagian A jika mahu guna kadar admin.');
+  }
+
   var data = {
+    kadar_manual: kadarManual,
     bulan: bulanInfo.bulan, pegawai: peg, perjalanan: perjalanan, makan: makan,
     lojing: { malam: lojingMalam, senarai: senaraiLojing }, bsp: bsp, awam: awam,
     tol: { rm: amaunTeks(selNilai(m6, 'L3')), rujukan: rujukan(selTeks(m6, 'A3')) },

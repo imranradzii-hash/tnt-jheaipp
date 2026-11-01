@@ -45,6 +45,9 @@ var KOD_KADAR = {
   LOJING: { label: 'Elaun lojing semalam (Semenanjung)', unit: 'RM', per_kumpulan: true }
 };
 
+// Kadar yang pemohon boleh isi sendiri dalam tuntutan (jika admin belum tetapkan atau berbeza)
+var KOD_KADAR_MANUAL = ['ELAUN_MAKAN', 'ELAUN_HARIAN', 'LOJING'];
+
 // Peratus bahagian makan (WP1.4): sarapan 20%, tengah hari 40%, malam 40%
 var PERATUS_MAKAN = { sarapan: 0.2, tengahari: 0.4, malam: 0.4 };
 
